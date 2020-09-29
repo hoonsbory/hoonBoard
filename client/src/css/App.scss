@@ -1,0 +1,42 @@
+body{
+    width: 900px;
+    margin: auto !important;
+    height: 100%;
+    overflow-y: scroll;
+}
+pre{
+    white-space: pre-wrap;
+    background: #EEE;
+}
+button{
+    border : 0;
+    outline: 0;
+    -webkit-tap-highlight-color: transparent; 
+    background-color: transparent;
+    
+}
+
+div,button:focus{
+    outline: none !important;
+    //클릭시 테두리 안생기게 해줌
+}
+a:hover{
+    text-decoration: none !important;
+}
+//contenteditable속성이 true인 노드에 placeholder attribute를 설정해주면 된다. attribute를 통해서 매핑하는것이기 때문에 이름은 placeholder가 아니어도 상관은 없다.
+[contenteditable=true]:empty:before {
+    content: attr(placeholder);
+    display: block;
+    color: #aaa;
+  }
+@media(max-width : "900px"){
+    html{
+        font-size : 14px
+    }
+    body{
+        width : 100% !important
+    }
+    #boardNav{
+        width : 100% !important
+    }
+}
