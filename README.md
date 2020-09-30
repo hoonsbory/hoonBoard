@@ -7,7 +7,7 @@
 
 
 
-<h1 align="center">Welcome to HoonBoard   👋</h1>
+<h1 align="center" style="color:blue">Welcome to HoonBoard   👋</h1>
 <p>
   <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000" />
 </p>
@@ -31,8 +31,10 @@
 - Passport
 
 ### 🏠 [Homepage](https://hoonboard.herokuapp.com)
-<img width="450px" src="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/abstract01.jpg">
-<img width="450px" src="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/board02.jpg">
+<div>
+<img width="400px"  style="float : left; margin-right : 300px;" src="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/abstract01.jpg">
+<img width="400px"   style="float : right;" src="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/board02.jpg">
+</div>
 
 ## Author
 
