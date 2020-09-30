@@ -1,8 +1,16 @@
+@font-face {
+    font-family: 'Noto Sans';
+    font-style: normal;
+    font-weight: 100;
+    src: local('Noto Sans'),
+    url("https://t1.daumcdn.net/tistory_admin/static/manage/font/NotoSansCJKkr-DemiLight.woff") format('woff')
+}
 body{
     width: 900px;
     margin: auto !important;
     height: 100%;
     overflow-y: scroll;
+    font-family: 'Noto Sans' !important;
 }
 pre{
     white-space: pre-wrap;
@@ -14,6 +22,10 @@ button{
     -webkit-tap-highlight-color: transparent; 
     background-color: transparent;
     
+}
+.ql-container{
+    font-size: 15px !important;
+    font-family: 'Noto Sans' !important;
 }
 
 div,button:focus{
@@ -38,5 +50,11 @@ a:hover{
     }
     #boardNav{
         width : 100% !important
+    }
+    .writer{
+        max-width: 30vw;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 }
