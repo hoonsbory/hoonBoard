@@ -6,6 +6,10 @@
     padding-top : 15px;
 }
 
+.ql-editor.view{
+    padding : 0 !important;
+    padding-top : 20px !important
+}
 
 .boardList{
     padding: 15px 0;
@@ -35,6 +39,7 @@
     
 }
 
+
 .write-info{
     overflow: hidden;
     padding-left: 5px;
@@ -45,16 +50,15 @@ dd{
     line-height: 18px;
     margin-right: 15px;
 }
-.iconDd{
+.iconSpan{
     position: relative;
     padding-left: 20px;
     margin-right: 5px;
     &:before{
         position: absolute;
 left: 0;
-top: 2px;
 width: 18px;
-height: 16px;
+height: 20px;
 background: url(https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/iconList.png) 0 center no-repeat;
 background-size: 300% auto;
 content: "";
@@ -81,6 +85,9 @@ content: "";
     display: inline-flex !important;
 }
 .left{
+    width: 100%;
+}
+.left.thumbnail{
     width: 70%;
 }
 .right.pc{
@@ -114,7 +121,7 @@ content: "";
     position: fixed;
     bottom: 30px;
     right: 4%;
-    z-index: 999;
+    z-index: 998;
 }
 #writeBtn,#topBtn{
     display: block;

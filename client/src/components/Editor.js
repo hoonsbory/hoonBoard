@@ -9,6 +9,8 @@ import ReactQuill, { Quill } from 'react-quill';
 import { Button } from 'reactstrap'
 import ImageResize from 'quill-image-resize-module-fix-for-mobile';
 import { debounce } from 'lodash'
+import { useHistory } from 'react-router-dom';
+import Loading from './Loading';
 
 Quill.register('modules/ImageResize', ImageResize);
 
@@ -17,7 +19,7 @@ hljs.configure({
   languages: ['javascript', 'ruby', 'python', 'rust', 'html', 'css'],
 })
 
-const Editor = ({ params, handleTrigger, viewPost }) => {
+const Editor = ({ params, renderTrigger, viewPost }) => {
   //s3에 업로드된 이미지 배열
   // const [finalFiles, setFinalFiles] = useState([1])
 
@@ -74,6 +76,8 @@ const Editor = ({ params, handleTrigger, viewPost }) => {
   var files = [];
   var editor;
   var input;
+  const history = useHistory(); //react router 5버전부터 사용가능하다고 한다. 
+  //history.push("/view/"+res.data) 이런 식으로 사용가능. 원래는 withrouter나 browserHistory로 모듈을 감싸서 사용했는데 이게 좀 더 깔끔한거 같다.
   const sendPost = debounce(useCallback(async () => {
     editor = document.getElementsByClassName("ql-editor")[0]
     input = document.getElementById("postTitle")
@@ -85,6 +89,8 @@ const Editor = ({ params, handleTrigger, viewPost }) => {
       alert("내용을 입력해주세요")
       return
     }
+    
+    document.getElementById("loadingBg").style.display = "block"
     //반복문을 통해 base64 이미지를 파일로 변환후 s3에 업로드한다. 그리고 리턴받은 url을 src에 넣어준다
     if (params !== "update") {
       for (var i = 0; i > -1; i++) {
@@ -105,8 +111,11 @@ const Editor = ({ params, handleTrigger, viewPost }) => {
               title: input.value.trim()
             }
           ).then((res) => {
+            renderTrigger()
+            document.getElementById("loadingBg").style.display = "none"
             alert('글이 등록되었습니다!');
-            window.location.href = "/view/" + res.data
+            // window.location.href = "/view/" + res.data
+            history.push("/view/"+res.data)
           })
           break;
         }
@@ -139,7 +148,6 @@ const Editor = ({ params, handleTrigger, viewPost }) => {
               //한글로 된 파일명이 있기때문에 디코딩해줘야 삭제가 된다. url은 인코딩된 값이지만 s3의 객체 키값은 한글로 들어가있어서 한글로 키값을 보내줘야 삭제가능.
               data: decodeURI(files[i].split("https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/")[1])
             }).then((res) => {
-              alert(res.data);
             })
           }
         }
@@ -185,8 +193,10 @@ const Editor = ({ params, handleTrigger, viewPost }) => {
           postId: viewPost.postId
         }
       ).then((res) => {
+        renderTrigger()
+        document.getElementById("loadingBg").style.display = "none"
         alert('글이 수정되었습니다!');
-        window.location.href = "/view/" + res.data
+        history.push("/view/"+res.data)
       })
     }
 
@@ -394,6 +404,7 @@ const Editor = ({ params, handleTrigger, viewPost }) => {
         onKeyDown={onKeyDown}
       />
       <Button id="sendBtn" color="primary" style={sendBtn} onClick={sendPost}>완료</Button>
+      <Loading></Loading>
     </div>
   )
 }
