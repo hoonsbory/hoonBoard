@@ -4,11 +4,9 @@ const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
 const basename = path.basename(__filename);
-// const env = process.env.NODE_ENV || 'production';
-// const config = require(__dirname + '/../config/config.json')[env];
-const config = require(__dirname + '/../config/config.json')
+const env = process.env.NODE_ENV;
+const config = require(__dirname + '/../config/'+env.trim()+'.json')
 const db = {};
-
 //여기에 직접 값을 넣었을 때는 적용이 안된다. config에 적어주니까 된다.. 이유가 뭐지
 let sequelize = new Sequelize({logging: config.logging, timezone: config.timezone, host: config.host, username: config.username, password: config.password, port: config.port, database: config.database, dialect: 'mysql' })
 
