@@ -39,7 +39,7 @@ const NotMobile = ({ list2, totalPage, pageChange, dateCompare, pageNum, user })
                                 {data.thumbnail ?
                                     <div className="right pc">
                                         <i>
-                                            <img src={"http://jaehoon-bucket.s3-website.ap-northeast-2.amazonaws.com/" + data.thumbnail} alt="" />
+                                            <img src={"https://jaehoon-bucket.s3-website.ap-northeast-2.amazonaws.com/" + data.thumbnail} alt="" />
                                         </i>
                                     </div> : ""
                                 }

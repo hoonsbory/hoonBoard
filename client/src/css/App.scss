@@ -3,7 +3,8 @@
     font-style: normal;
     font-weight: 100;
     src: local('Noto Sans'),
-    url("https://t1.daumcdn.net/tistory_admin/static/manage/font/NotoSansCJKkr-DemiLight.woff") format('woff')
+    //이미지 가져다 쓸때는 cors정책에 안걸렸는데 폰트는 정책에 걸린다 이유는 모른다.. 그래서 s3에서 정책 편집해줘야함.
+    url("https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/NotoSansCJKkr-DemiLight.woff") format('woff')
 }
 body{
     width: 900px;

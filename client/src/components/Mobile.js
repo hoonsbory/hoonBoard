@@ -21,7 +21,7 @@ const Mobile = ({ list, pageNum, pageChange, totalPage, dateCompare, handleChang
             var scrollPosition = boardUl.scrollTop
             handleChangeScroll(scrollPosition)
             if (scrollHeight < Math.round(scrollPosition) + htmlHeight + 20 && boardUl.childElementCount !== totalPage) {
-                await pageChange(pageNum, Math.round(window.innerHeight / 86), false)
+                await pageChange(pageNum, Math.round(window.innerHeight / 50), false)
                 //스크롤이 바닥에 닿을때 딱 한번 실행되어야하는데, 딱 맞아 떨어지는 화면크기가 있는 반면에 1차이가 나는 화면도 있었다. 그래서 둘다 적용해줌.
             }
         }, 400);
@@ -50,20 +50,20 @@ const Mobile = ({ list, pageNum, pageChange, totalPage, dateCompare, handleChang
                                 {data.thumbnail ?
                                     <div className="right">
                                         <i>
-                                            <img src={"http://jaehoon-bucket.s3-website.ap-northeast-2.amazonaws.com/" + data.thumbnail} alt="" />
+                                            <img src={"https://jaehoon-bucket.s3-website.ap-northeast-2.amazonaws.com/" + data.thumbnail} alt="" />
                                         </i>
                                     </div> : ""
                                 }
-                                <div className="left">
+                                <div className={data.thumbnail ? "left thumbnail" : "left"}>
                                     <h3>{data.title}</h3>
                                     <dl className="write-info mb-2">
                                         <dd className="writer">{data.userId}</dd>
                                         {data.thumbnail ? <dd className="date thumbnail">{dateCompare(data.updatePost)}</dd> : <dd className="date">{dateCompare(data.updatePost)}</dd>}
                                         <dd className="etc">
-                                            <dd id="count-comment" className="iconDd">{data.commentCount}</dd>
+                                        <span id="count-comment" className="iconSpan">{data.commentCount}</span>
 
-                                            <dd id="count-read" className="iconDd">{data.views}</dd>
-                                            <dd id="count-likes" className="iconDd">{data.likeCount}</dd>
+<span id="count-read" className="iconSpan">{data.views}</span>
+<span id="count-likes" className="iconSpan">{data.likeCount}</span>
                                         </dd>
                                     </dl>
                                 </div>
