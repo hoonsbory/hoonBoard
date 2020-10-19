@@ -37,6 +37,7 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       unique: true
     },
+    description : DataTypes.STRING,
     content: DataTypes.STRING,
     title: DataTypes.STRING,
     userId: DataTypes.STRING,

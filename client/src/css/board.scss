@@ -11,6 +11,19 @@
     padding-top : 20px !important
 }
 
+#pageLoading{
+    position : relative;
+    left : 50%;
+    transform : translateX(-50%);
+    right: 7.5px;
+    top: 35px;
+}
+#lastPost{
+    position : relative;
+    text-align: center;
+    top: 65px;
+}
+
 .boardList{
     padding: 15px 0;
     border-bottom: 1px solid #f4f4f4;
@@ -35,6 +48,7 @@
         font-size: 1.2rem !important;
         font-weight: 500;
         line-height: 25px;
+        text-align: left;
     }
     
 }
@@ -69,15 +83,15 @@ content: "";
 #count-likes:before{
     background-position-x: 100% !important;
 }
-.etc{
-    width: 120px;
-}
+// .etc{
+//     width: 120px;
+// }
 .date{
     color : #a5a5a5;
 }
-.date.thumbnail{
-    float : none
-}
+// .date.thumbnail{
+//     float : none
+// }
 #count-read:before{
     background-position-x: 50% !important;
 }
@@ -88,7 +102,7 @@ content: "";
     width: 100%;
 }
 .left.thumbnail{
-    width: 70%;
+    width: 68%;
 }
 .right.pc{
     right: 5%;

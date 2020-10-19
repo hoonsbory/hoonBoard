@@ -1,42 +1,45 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import Axios from 'axios'
 import Like from './Like'
 import Comment from './Comment'
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux'
 import * as boardActions from '../store/modules/board'
 import CommentList from './CommentList'
 import { debounce } from 'lodash'
 import Loading from './Loading'
+import queryString from 'query-string'
+import { Helmet } from 'react-helmet-async'
+import axios from '../Axios'
 
 
-const ViewPost = ({ match, user, boardActions, renderTrigger, viewPost, dateCompare }) => {
+const ViewPost = ({ location, user, boardActions, renderTrigger, viewPost, dateCompare }) => {
 
     const [commentList, setCommentList] = useState([])
+    const query = queryString.parse(location.search);
+    const history = useHistory();
+
+    const handleUser = useCallback(() => {
+        boardActions.user("")
+    }, [])
+
+    const handleTrigger = useCallback(() => {
+        boardActions.renderTrigger()
+    }, [])
+
+    const axiosFunc = axios(user, handleUser, handleTrigger);
 
     const getPost = useCallback(() => {
-        Axios.post("/api/viewPost", { postId: match.params.postId })
-            .then((res) => {
-                boardActions.viewPost(res.data.post)
-                setCommentList(res.data.comment)
-                document.getElementById("viewPost").innerHTML = res.data.post.content
-                document.getElementById("viewHeader").parentNode.style.display = "block"
-                sessionStorage.setItem("check", true)
-            }).catch((err) => {
-
-            })
+        axiosFunc.axiosPost("/api/viewPost", { postId: query.postId }, (res) => {
+            boardActions.viewPost(res.data.post)
+            setCommentList(res.data.comment)
+            document.getElementById("viewPost").innerHTML = res.data.post.content
+            document.getElementById("viewHeader").parentNode.style.display = "block"
+            sessionStorage.setItem("check", true)
+        }, (err) => { if (err.response.data) history.push("/error") })
     }, [])
 
     //처음 들어왔을때만 조회수1증가. 
-    useEffect(() => {
-        Axios.post("/api/updateViews", { postId: match.params.postId })
-            .then(res => {
-
-            })
-    }, [])
-
-
     useEffect(() => {
         getPost()
         //답글달기 버튼을 눌렀을때 함수를 바인딩하기때문에 로그인을 하고나도 이전에 바인딩된 함수이기 떄문에 user객체가 읽히지가 않기때문에 다시 바인딩해준다.
@@ -44,12 +47,19 @@ const ViewPost = ({ match, user, boardActions, renderTrigger, viewPost, dateComp
         if (document.getElementById("updateText")) document.getElementById("updateText").nextElementSibling.onclick = sendUpdateComment
     }, [user, renderTrigger]) //로그인 및 로그아웃 시에 좋아요 표시나 수정 삭제 버튼 등등이 다시 표시해야하기 때문에 user가 바뀌면 렌더링
 
+
+    useEffect(() => {
+        axiosFunc.axiosPost("/api/updateViews", { postId: query.postId })
+    }, [])
+
+
+
     const postStyle = {
         padding: "0 !important",
         borderTop: "1px solid #f4f4f4",
         marginBottom: "20px",
         display: "flow-root",
-        overflowX: "auto"
+        overflow: "auto hidden",
     }
 
     const viewHeader = {
@@ -62,17 +72,13 @@ const ViewPost = ({ match, user, boardActions, renderTrigger, viewPost, dateComp
             return
         }
         if (!viewPost.likeCheck) {
-            Axios.post('/api/like', { postId: viewPost.postId })
-                .then(res => {
-                    if (res.data)
-                        boardActions.renderTrigger()
-                })
+            axiosFunc.axiosPost('/api/like', { postId: viewPost.postId }, (res) => {
+                if (res.data) boardActions.renderTrigger()
+            })
         } else {
-            Axios.post('/api/unLike', { postId: viewPost.postId })
-                .then(res => {
-                    if (res.data)
-                        boardActions.renderTrigger()
-                })
+            axiosFunc.axiosPost('/api/unLike', { postId: viewPost.postId }, (res) => {
+                if (res.data) boardActions.renderTrigger()
+            })
         }
     }, [user, viewPost]), 200)
 
@@ -82,18 +88,13 @@ const ViewPost = ({ match, user, boardActions, renderTrigger, viewPost, dateComp
             return
         }
         if (!likeCheck) {
-            Axios.post('/api/likeComment', { commentId: id })
-                .then(res => {
-                    if (res.data)
-                        boardActions.renderTrigger()
-                })
+            axiosFunc.axiosPost('/api/likeComment', { commentId: id }, (res) => {
+                if (res.data) boardActions.renderTrigger()
+            })
         } else {
-            Axios.post('/api/unLikeComment', { likeId: id })
-                .then(res => {
-                    if (res.data)
-
-                        boardActions.renderTrigger()
-                })
+            axiosFunc.axiosPost('/api/unLikeComment', { likeId: id }, (res) => {
+                if (res.data) boardActions.renderTrigger()
+            })
         }
     }, [user]), 200)
 
@@ -104,24 +105,27 @@ const ViewPost = ({ match, user, boardActions, renderTrigger, viewPost, dateComp
         }
         if (window.confirm("정말 삭제하시겠습니까?")) {
             document.getElementById("loadingBg").style.display = "block"
+            document.getElementById("loading").style.display = "block"
             for (var i = 0; i > -1; i++) {
-                if (document.getElementById("viewPost").getElementsByTagName("img")[i]) {
-                    await Axios.post('/api/deleteImg', {
-                        //한글로 된 파일명이 있기때문에 디코딩해줘야 삭제가 된다. url은 인코딩된 값이지만 s3의 객체 키값은 한글로 들어가있어서 한글로 키값을 보내줘야 삭제가능.
-                        data: decodeURI(document.getElementById("viewPost").getElementsByTagName("img")[i].src.split("https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/")[1])
-                    }).then((res) => {
-                        alert(res.data);
-                    })
-                } else {
-                    await Axios.post("/api/deletePost", { postId: viewPost.postId })
-                        .then(res => {
-                            document.getElementById("loadingBg").style.display = "none"
-                            document.getElementById("goHome").click()
-                            boardActions.renderTrigger()
+                try {
+                    if (document.getElementById("viewPost").getElementsByTagName("img")[i].src.indexOf("https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/") > -1) {
+                        await axiosFunc.axiosPost('/api/deleteImg', {
+                            //한글로 된 파일명이 있기때문에 디코딩해줘야 삭제가 된다. url은 인코딩된 값이지만 s3의 객체 키값은 한글로 들어가있어서 한글로 키값을 보내줘야 삭제가능.
+                            data: decodeURI(document.getElementById("viewPost").getElementsByTagName("img")[i].src.split("https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/")[1])
                         })
-                        return;
+                    } else {
+                        break;
+                    }
+                } catch (error) {
+                    break;
                 }
             }
+            await axiosFunc.axiosPost('/api/deletePost', { postId: viewPost.postId }, () => {
+                document.getElementById("goHome").click()
+                boardActions.renderTrigger()
+                alert("글이 성공적으로 삭제되었습니다.");
+                return
+            })
 
 
         }
@@ -132,19 +136,18 @@ const ViewPost = ({ match, user, boardActions, renderTrigger, viewPost, dateComp
             alert("로그인이 필요합니다")
             return
         }
-        if (!(/^.{1,400}$/).test(document.getElementById("commentText").innerText)) {
-            alert("내용은 1~400자 사이로 입력해주세요")
+        if (document.getElementById("commentText").value.length === 0 || document.getElementById("commentText").value.length > 1000) {
+            alert("내용은 1~1000자 사이로 입력해주세요")
             return
         }
-        Axios.post("/api/sendParentComment", { postId: viewPost.postId, comment: document.getElementById("commentText").innerHTML })
-            .then(res => {
-                document.getElementById("commentText").innerText = ""
-                boardActions.renderTrigger()
-                setTimeout(() => {
-                    //댓글리로드한 후 맨아래로.
-                    window.scrollTo(0, document.body.scrollHeight)
-                }, 500);
-            })
+        axiosFunc.axiosPost("/api/sendParentComment", { postId: viewPost.postId, comment: document.getElementById("commentText").value.replace(/(?:\r\n|\r|\n)/g, '<br/>') }, (res) => {
+            document.getElementById("commentText").value = ""
+            boardActions.renderTrigger()
+            setTimeout(() => {
+                //댓글리로드한 후 맨아래로.
+                window.scrollTo(0, document.body.scrollHeight)
+            }, 500);
+        })
     }, [user, viewPost]), 200)
 
     const sendChildComment = debounce(useCallback(() => {
@@ -152,15 +155,18 @@ const ViewPost = ({ match, user, boardActions, renderTrigger, viewPost, dateComp
             alert("로그인이 필요합니다")
             return
         }
-        if (!(/^.{1,400}$/).test(document.getElementById("replyText").innerText)) {
-            alert("내용은 1~400자 사이로 입력해주세요")
+        if (document.getElementById("replyText").value.length === 0 || document.getElementById("replyText").value.length > 1000) {
+            alert("내용은 1~1000자 사이로 입력해주세요")
             return
         }
-        Axios.post("/api/sendChildComment", { groupId: document.getElementById("replyText").nextElementSibling.id, postId: commentList[0].postId, comment: document.getElementById("replyText").innerHTML })
-            .then(res => {
-                document.getElementById("replyDiv").remove()
-                boardActions.renderTrigger()
-            })
+        axiosFunc.axiosPost("/api/sendChildComment", {
+            groupId: document.getElementById("replyText").nextElementSibling.id,
+            postId: commentList[0].postId,
+            comment: document.getElementById("replyText").value.replace(/(?:\r\n|\r|\n)/g, '<br/>')
+        }, () => {
+            document.getElementById("replyDiv").remove()
+            boardActions.renderTrigger()
+        })
     }, [user, commentList]), 200)
 
     const sendUpdateComment = debounce(useCallback(() => {
@@ -168,15 +174,17 @@ const ViewPost = ({ match, user, boardActions, renderTrigger, viewPost, dateComp
             alert("로그인이 필요합니다")
             return
         }
-        if (!(/^.{1,400}$/).test(test.document.getElementById("updateText").innerText)) {
-            alert("내용은 1~400자 사이로 입력해주세요")
+        if (document.getElementById("updateText").value.length === 0 || document.getElementById("updateText").value.length > 1000) {
+            alert("내용은 1~1000자 사이로 입력해주세요")
             return
         }
-        Axios.post("/api/sendUpdateComment", { id: document.getElementById("updateText").nextElementSibling.id, comment: document.getElementById("updateText").innerHTML })
-            .then(res => {
-                document.getElementById("replyDiv").remove()
-                boardActions.renderTrigger()
-            })
+        axiosFunc.axiosPost("/api/sendUpdateComment", {
+            id: document.getElementById("updateText").nextElementSibling.id,
+            comment: document.getElementById("updateText").value.replace(/(?:\r\n|\r|\n)/g, '<br/>')
+        }, () => {
+            document.getElementById("replyDiv").remove()
+            boardActions.renderTrigger()
+        })
     }, [user]), 200)
 
     const deleteComment = useCallback((id) => {
@@ -185,10 +193,9 @@ const ViewPost = ({ match, user, boardActions, renderTrigger, viewPost, dateComp
             return
         }
         if (window.confirm("정말 삭제하시겠습니까?"))
-            Axios.post("/api/deleteComment", { id: id })
-                .then(res => {
-                    boardActions.renderTrigger()
-                })
+            axiosFunc.axiosPost("/api/deleteComment", { id: id }, () => {
+                boardActions.renderTrigger()
+            })
     }, [user])
 
     const deleteUpdate = {
@@ -198,6 +205,18 @@ const ViewPost = ({ match, user, boardActions, renderTrigger, viewPost, dateComp
 
     return (
         <div style={{ display: "none", padding: '0 20px' }}>
+            <Helmet>
+                <title>{viewPost.title}</title>
+                <meta property="og:image" content="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/board.png" />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content={viewPost.title} />
+                <meta property="og:description" content={viewPost.description} />
+                <meta name="description" content={viewPost.description}></meta>
+                <meta property="twitter:title" content={viewPost.title} />
+                <meta property="twitter:description" content={viewPost.description} />
+                <link rel="canonical" href={"https://hoondevnote.ml/view?postId=" + query.postId} />
+                <meta name="description" content={viewPost.description}></meta>
+            </Helmet>
             <Loading></Loading>
             <div id="viewHeader" style={viewHeader}>
                 <h4>{viewPost.title}</h4>

@@ -1,13 +1,17 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useCallback } from 'react'
 import Editor from './Editor'
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as boardActions from '../store/modules/board';
 const Post = ({ match, boardActions, viewPost, user }) => {
 
-  const handleTrigger = () => {
+  const handleTrigger = useCallback(() => {
     boardActions.renderTrigger()
-  }
+  }, [])
+
+  const handleUser = useCallback(() => {
+    boardActions.user("")
+  }, [])
   useEffect(() => {
     if (!user.id) {
       document.getElementById("goHome").click()
@@ -19,11 +23,12 @@ const Post = ({ match, boardActions, viewPost, user }) => {
 
   return (
     <div>
-      <Editor params={match.params.update} viewPost={viewPost} renderTrigger={handleTrigger}></Editor>
+      <Editor params={match.params.update} user={user} viewPost={viewPost} renderTrigger={handleTrigger} handleUser={handleUser}></Editor>
     </div>
   )
 }
 const mapStateToProps = ({ board }) => ({
+  user: board.user,
   viewPost: board.viewPost,
   renderTrigger: board.renderTrigger
 });

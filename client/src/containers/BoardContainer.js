@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import Axios from "axios"
 import NotMobile from '../components/NotMobile';
 import Mobile from '../components/Mobile';
 import Post from '../components/Post';
-
 import { List } from 'react-virtualized';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -11,11 +9,15 @@ import * as boardActions from '../store/modules/board';
 import Header from '../components/Header'
 import { Route } from 'react-router-dom'
 import ViewPost from '../components/ViewPost';
+import { debounce } from 'lodash'
+import { Helmet } from 'react-helmet-async'
+import Error from '../components/Error'
+import axios from '../Axios'
 
-const BoardContainer = ({ boardActions, list, list2, pageNum, search, input, scroll, user,  renderTrigger }) => {
-    const [totalPage, setTotalPage] = useState(5);
-    const [pageSize, setPageSize] = useState(0);
+const BoardContainer = ({ boardActions, search, input, renderTrigger }) => {
     const [reload, setReload] = useState(false);
+    const axiosfunc = axios("")
+
 
 
     window.addEventListener("resize", useCallback(() => {
@@ -27,17 +29,17 @@ const BoardContainer = ({ boardActions, list, list2, pageNum, search, input, scr
                 document.getElementsByClassName("postList")[0].style.width = "100%"
                 document.getElementsByClassName("ReactVirtualized__Grid__innerScrollContainer")[0].style.width = "100%"
                 document.getElementsByClassName("ReactVirtualized__Grid__innerScrollContainer")[0].style.maxWidth = "none"
-                document.getElementsByClassName("postList")[0].style.height = window.innerHeight + "px"
-                document.getElementsByClassName("ReactVirtualized__Grid__innerScrollContainer")[0].style.height = window.innerHeight + "px"
+                document.getElementsByClassName("postList")[0].style.height = window.innerHeight - 40 + "px"
+                document.getElementsByClassName("ReactVirtualized__Grid__innerScrollContainer")[0].style.height = window.innerHeight - 40 + "px"
                 document.getElementsByClassName("ReactVirtualized__Grid__innerScrollContainer")[0].style.maxHeight = "none"
-                document.getElementById("boardUl").style.height = window.innerHeight + "px"
+                document.getElementById("boardUl").style.height = window.innerHeight - 40 + "px"
+                document.getElementById("boardUl").parentElement.style.height = window.innerHeight - 40 + "px"
             }
         } else {
             document.getElementById("boardNav").style.width = "900px"
             document.body.style.width = "900px"
         }
-    },[]))
-
+    }, []))
     const ua = () => {
         // return window.innerWidth <= 900 ? true : false
         return navigator.userAgent.indexOf("Mac") > -1 || navigator.userAgent.indexOf("Mobile") > -1 || navigator.userAgent.indexOf("iPad") > -1 || navigator.userAgent.indexOf("iPhone") > -1
@@ -46,11 +48,15 @@ const BoardContainer = ({ boardActions, list, list2, pageNum, search, input, scr
         boardActions.search(e.target.value)
     }
     const handleChangeInput = (e) => {
-        boardActions.changeInput(e.target.value.trim())
+        var value = e.target.value.trim()
+        debounceFunc(value)
     }
-    const handleChangePageNum = (e) => {
-        boardActions.pageNum(e)
-    }
+
+    //한 300밀리세컨드정도로 설정하고싶은데, 검색버튼을 통해 통신하기때문에, 정해진 밀리세컨드보다 빨리 버튼을 누르면 검색이벤트함수에서 값을 못읽는다..
+    const debounceFunc = debounce((value) => {
+        boardActions.changeInput(value)
+    }, 100)
+
     const handleChangeScroll = (e) => {
         boardActions.scroll(e)
     }
@@ -63,19 +69,19 @@ const BoardContainer = ({ boardActions, list, list2, pageNum, search, input, scr
     //그래서 결국 스크롤이 진행되면 1번째때 받아온 리스트를 2번쨰의 이벤트에서 노드생성을 한다. 이렇게되면 마지막에 불필요한 쿼리를 날린다.
     //예 -> 비동기처리방식 때문에 스토어에 10번째 리스트가 있으면 실제로 스크롤때 생성되는건 9번째기때문에. 마지막 10번째 리스트를 생성하기 위해선
     //11번째 리스트를 부르기위한 쿼리를 날려야한다.
-
-
     const pageChange = async (selectedPage, size, mobileReload) => {
         //모바일 기기 가로 세로 전환 시 뷰포트의 높이에 따라 생성되던 리스트 길이가 달라지기 때문에, 데이터의 순서가 꼬인다. 
         //높이가 달라져도 유지할 수 있게 조건을 넣어줌.
-        if (pageSize !== 0 && pageSize !== size) size = pageSize
-        await Axios.post('/api/boardList', { page: selectedPage, size: size, search: search, input: input, mobileReload: mobileReload })
-            .then((res) => {
-                if(!res.data.list){
+        var pageSize = parseInt(sessionStorage.getItem("pageSize"))
+        if (pageSize && pageSize !== size) size = pageSize
+            await axiosfunc.axiosPost('/api/boardList', { page: selectedPage, size: size, search: search, input: input, mobileReload: mobileReload }, (res) => {
+                if (!res.data.list) {
                     alert('검색결과가 없습니다');
                     return
                 }
-                setTotalPage(res.data.length)
+                if (document.getElementById("pageLoading"))
+                    document.getElementById("pageLoading").remove()
+                boardActions.totalPage(res.data.length)
                 if (!ua()) {
                     //번호 페이징형식의 리스트
                     boardActions.list2(res.data.list)
@@ -83,57 +89,60 @@ const BoardContainer = ({ boardActions, list, list2, pageNum, search, input, scr
                 else {
                     //무한스크롤의 두번째부터 리스트
                     //좋아요를 누르거나 댓글을 등록하고나서 정보를 다시 로드해야하기 떄문에, 쿼리에서 limit를 다시 설정해줄 필요가 있어서 조건을 걸어주었다.
-                    if(mobileReload) 
-                    boardActions.mobileReload(res.data.list)
-                    else 
-                    boardActions.list(res.data.list)
+                    if (mobileReload) {
+                        boardActions.mobileReload(res.data.list)
+                    }
+                    else {
+                        boardActions.list(res.data.list)
+                        if(!document.getElementById("pageLoading")){
+                            var loading = document.createElement('img')
+                            loading.src = "https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/1601446938150loading.gif"
+                            loading.id = "pageLoading"
+                            loading.width = 60
+                            document.getElementById("boardUl").appendChild(loading)
+                            }
+                    }
                 }
-                boardActions.pageNum(selectedPage)
-                setPageSize(size)
-
+                //과도하게 컨테이너 하나로 운영하려다가 렌더링 폭격맞고 조금이라도 줄여보려고 state를 sessionStorage로 바꿈 ㅜ
+                //현재는 불필요한 렌더링이 페이지 로드할 때 딱 한번 더 일어나는 것 말고는 없다.
+                //나는 뭔가 컨트롤 타워마냥 한 군데에서 뿌려주는 것이 깔끔해보여서 컨테이너하나로 시작했는데, 컨테이너에서 state의 변경까지만 하고
+                //state값을 사용하지는 말았어야 했다. 너무 함수의 재활용에만 집중해서 설계를 잘못했다.
+                sessionStorage.setItem("pageNum", selectedPage)
+                boardActions.pageNum(parseInt(selectedPage))
+                sessionStorage.setItem("pageSize", size)
             })
     }
 
 
     useEffect(() => {
-        Axios.get('/api/sessionCheck')
-        .then(res => {
-            if(res.data.id)
-            handleChangeUser(res.data)
-        })
-        if (ua()) {
-            //쿼리에서 limit를 정할때 뷰포트의 높이값에서 li태그를 나눈 값으로 한다. 어느 기기에서든 리스트 길이가 딱들어맞는다.
-            pageChange(1, Math.round(window.innerHeight / 86), false)
-            document.getElementById("boardNav").style.width = "100%"
-            document.body.style.width = "100%"
-            document.querySelector('html').style.overflow = "unset"
-        } else {
-            document.querySelector('html').style.overflow = "unset"
-            pageChange(0, 10, false)
-        }
-        document.getElementById("boardDiv").style.display = "block"
-    }, [])
-
-    //댓글등록, 좋아요 등 정보가 바뀔시에 렌더링.
-    useEffect(() => {
-        //state가 이전과 같은 값이기 떄문에 렌더링이 일어나면 안되는데, axios를 통해 받아서 넣는건 렌더링이 일어난다. 분명 리덕스 콘솔에도 state가 이전과 값이 같다고 나오지만
-        //렌더링은 된다.. 이유가 뭘까
-       
-        if (reload) {
-            if (!ua()) {
-                pageChange(pageNum - 1, 10, false)
+        //첫렌더링시 유저검증하고, height값에 따라 pageSize 결정 후 reload값을 true로 줘서 다음 렌더링부터는 다른 조건 적용.
+        if (!reload) {
+            setReload(true)
+            sessionStorage.setItem("pageSize", "")
+            axiosfunc.axiosGet('/api/sessionCheck',(res)=>{
+                if (res.data.id) handleChangeUser(res.data)
+            })
+            if (ua()) {
+                //쿼리에서 limit를 정할때 뷰포트의 높이값에서 li태그를 나눈 값으로 한다. 어느 기기에서든 리스트 길이가 딱들어맞는다.
+                pageChange(1, Math.round(window.innerHeight / 50), false)
+                document.getElementById("boardNav").style.width = "100%"
+                document.body.style.width = "100%"
+                document.querySelector('html').style.overflow = "unset"
             } else {
-                pageChange(pageNum - 1, Math.round(window.innerHeight / 86), true)
+                document.querySelector('html').style.overflow = "unset"
+                pageChange(0, 10, false)
+            }
+            document.getElementById("boardDiv").style.display = "block"
+        } else {
+            //댓글등록, 좋아요 등 정보가 바뀔시에 렌더링.
+            if (!ua()) {
+                pageChange(sessionStorage.getItem("pageNum"), 10, false)
+            } else {
+                pageChange(sessionStorage.getItem("pageNum"), Math.round(window.innerHeight / 50), true)
             }
         }
-        setReload(true)
-        
     }, [renderTrigger])
 
-    //그냥 loop를 컴포넌트에서 꺼내와서 여기에서 썼다. 스토어든 useState든 자식에게 넘길떄 함수내에서 동기 처리가 되지않아서.
-    //그냥 부모로 가져와서 자식에게 리스트를 뿌려주는 걸로 변경했다. 부모에서도 state는 비동기처리지만, useEffect로 state의 변경을
-    //감지해서 리스트를 뿌려주도록 설계했다. 
-    //피씨와 모바일 컴포넌트를 이쁘게 분리하고 싶었지만 결국 실패했다. 
 
 
     //db에서 받아오는 객체는 제로필이 되어있어서 시간 비교를 위해 직접 포맷코딩함
@@ -145,7 +154,7 @@ const BoardContainer = ({ boardActions, list, list2, pageNum, search, input, scr
             zero += '0';
         }
         return zero + n;
-    },[])
+    }, [])
 
     const dateCompare = useCallback((postDate) => {
         var date = new Date();
@@ -160,12 +169,12 @@ const BoardContainer = ({ boardActions, list, list2, pageNum, search, input, scr
         } else {
             return postDate.substr(11, 5)
         }
-    },[])
+    }, [])
 
     const rowRenderer = useCallback(
         () => {
             return (
-                <Mobile user={user} dateCompare={dateCompare} scroll={scroll} handleChangeScroll={handleChangeScroll} pageNum={pageNum} list={list} list2={list2} pageChange={pageChange} totalPage={totalPage}
+                <Mobile dateCompare={dateCompare} handleChangeScroll={handleChangeScroll} pageChange={pageChange}
 
                 />
             );
@@ -181,10 +190,22 @@ const BoardContainer = ({ boardActions, list, list2, pageNum, search, input, scr
     //그리고 무한스크롤은 노드가 많아질수록 버벅임이 심해져서, react-virtualized를 통해서 뷰포트 상에 들어오는 노드들만 보이게 처리해서 속도가 아주빠르다.
     return (
         <div id="boardDiv" style={{ display: "none" }}>
-            <Header handleChangeUser={handleChangeUser} user={user} handleChangePageNum={handleChangePageNum} pageSize={pageSize} handleChangeInput={handleChangeInput} ua={ua} search={search} handleChange={handleChange} pageChange={pageChange}></Header>
+            <Helmet>
+                <title>FullStack Junior's Note</title>
+                <meta property="og:title" content="FullStack Junior's Note" />
+                <meta property="og:description" content="풀스택 주니어의 웹개발노트입니다." />
+                <meta property="og:site_name" content="FullStack Junior's Note" />
+                <link rel="canonical" href="https://hoondevnote.ml" />
+                <meta name="description" content="풀스택 주니어의 웹개발노트입니다."></meta>
+                <meta property="twitter:title" content="FullStack Junior's Note" />
+                <meta property="twitter:description" content="풀스택 주니어의 웹개발노트입니다." />
+                <meta property="twitter:site" content="FullStack Junior's Note" />
+            </Helmet>
+            <Header handleChangeUser={handleChangeUser} handleChangeInput={handleChangeInput} ua={ua} search={search} handleChange={handleChange} pageChange={pageChange}></Header>
             <div style={{ marginTop: "40px" }}>
-                <Route path="/view/:postNum"  render={({match})=> <ViewPost match={match} dateCompare={dateCompare}></ViewPost>} ></Route>
-                <Route path="/post/:update"  render={({match})=> <Post match={match} user={user}></Post>}></Route>
+                <Route path="/error" render={({ location }) => <Error location={location}></Error>}></Route>
+                <Route path="/view" render={({ location, match }) => <ViewPost location={location} match={match} dateCompare={dateCompare}></ViewPost>} ></Route>
+                <Route path="/post/:update" render={({ match }) => <Post match={match} ></Post>}></Route>
                 {ua() ?
                     <Route exact path="/" render={() => <List
                         className="postList"
@@ -195,7 +216,7 @@ const BoardContainer = ({ boardActions, list, list2, pageNum, search, input, scr
                         rowRenderer={rowRenderer}
                     />}></Route>
                     :
-                    <Route exact path="/" render={() => <NotMobile user={user} pageNum={pageNum} dateCompare={dateCompare} list2={list2} totalPage={totalPage} pageChange={pageChange}></NotMobile>}></Route>
+                    <Route exact path="/" render={() => <NotMobile dateCompare={dateCompare} pageChange={pageChange}></NotMobile>}></Route>
                 }
             </div>
 
@@ -207,13 +228,9 @@ const BoardContainer = ({ boardActions, list, list2, pageNum, search, input, scr
 //스토어 객체에 접근할 수 있게 해줌.
 const mapStateToProps = ({ board }) => ({
     input: board.input,
-    list: board.list,
-    list2: board.list2,
-    pageNum: board.pageNum,
     search: board.search,
-    user: board.user,
-    scroll: board.scroll,
-    renderTrigger: board.renderTrigger
+    renderTrigger: board.renderTrigger,
+    reload: board.reload
 });
 
 //스토어의 액션을 조작할 수 있게 해줌

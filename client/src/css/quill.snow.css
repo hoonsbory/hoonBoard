@@ -636,7 +636,11 @@
 .ql-snow .ql-editor pre.ql-syntax {
   background-color: #23241f;
   color: #f8f8f2;
-  overflow: visible;
+  overflow-x: auto;
+  white-space: pre;
+  word-wrap : normal;
+  /* 코드박스만 따로 스크롤을 만들지않아도 pre값을 주면 코드 그대로 공백이 적용되기때문에 x축 스크롤이 박스 안에서만 생성된다.  
+     ios에서는 white-space만으로 공백이 적용되지가 않아서 검색해봤더니 word-wrap : normal까지 같이 써주면 된다고 한다.*/
 }
 .ql-snow .ql-editor img {
   max-width: 100%;

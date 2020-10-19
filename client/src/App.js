@@ -21,16 +21,7 @@ function App() {
       <BrowserRouter>
       <Link to="/" id="goHome"></Link>
         <BoardContainer></BoardContainer>
-        {/* <Link className="mt-2" to="/test/test">테스트</Link> */}
-        {/* 함수형 컴포넌트에서는 바인드를 해줘야한다. */}
-        {/* <Link to="/post">글쓰기</Link> */}
-        {/* <Link to="/post">글쓰기</Link>
-        <Login login_process={login}></Login>
-        <button onClick={test}>테스트</button> */}
       </BrowserRouter>
-      {/* <PaletteContainer />  
-        <CounterContainer /> 
-        <WaitingContainer /> */}
     </div>
   );
 }

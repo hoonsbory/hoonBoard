@@ -12,6 +12,9 @@ const USER = 'board/USER';
 const MOBILERELOAD = 'board/MOBILERELOAD';
 const RENDERTRIGGER = 'board/RENDERTRIGGER';
 const VIEWPOST = 'board/VIEWPOST';
+const TOTALPAGE = 'board/TOTALPAGE';
+const RELOAD = 'board/RELOAD';
+const PAGESIZE = 'board/PAGESIZE';
 // createAction 으로 액션 생성함수 정의
 export const changeInput = createAction(CHANGE_INPUT, text => text);
 export const list = createAction(LIST, list => list);
@@ -23,8 +26,14 @@ export const user = createAction(USER);
 export const mobileReload = createAction(MOBILERELOAD);
 export const renderTrigger = createAction(RENDERTRIGGER);
 export const viewPost = createAction(VIEWPOST);
+export const totalPage = createAction(TOTALPAGE);
+export const reload = createAction(RELOAD);
+export const pageSize = createAction(PAGESIZE);
 // **** 초기 상태 정의
 const initialState = {
+  reload : false,
+  pageSize : 0,
+  totalPage : 5,
   viewPost : {},
   renderTrigger : false,
   user : {},
@@ -119,6 +128,18 @@ export default handleActions(
     [VIEWPOST]: (state, action) => ({
       ...state,
       viewPost : action.payload
+    }),
+    [TOTALPAGE]: (state, action) => ({
+      ...state,
+      totalPage : action.payload
+    }),
+    [RELOAD]: (state, action) => ({
+      ...state,
+      reload : action.payload
+    }),
+    [PAGESIZE]: (state, action) => ({
+      ...state,
+      pageSize : action.payload
     })
   },
   initialState

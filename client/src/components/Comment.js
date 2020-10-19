@@ -14,7 +14,8 @@ const Comment = ({sendParentComment}) => {
         height : '100%',
         width : "90%",
         float : 'left',
-        overflowY: "auto"
+        overflowY: "auto",
+        border : "none",
     }
     const sendBtn = {
         background : "cornflowerblue",
@@ -27,7 +28,7 @@ const Comment = ({sendParentComment}) => {
    
     return (
         <div id="commentDiv" style={firstDiv}>
-            <div id="commentText" contentEditable="true"  placeholder="댓글을 입력해주세요" style={textDiv}></div>
+            <textarea id="commentText" placeholder="댓글을 입력해주세요" style={textDiv}></textarea>
             <button id="commentSendBtn" onClick={sendParentComment} style={sendBtn}>등록</button>
         </div>
     )

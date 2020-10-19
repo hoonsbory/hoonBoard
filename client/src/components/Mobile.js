@@ -1,9 +1,10 @@
-import React, {  useEffect, useCallback } from 'react'
+import React, { useEffect, useCallback } from 'react'
 import '../css/board.scss'
 import { Link } from 'react-router-dom'
 import { throttling } from './throttle.js';
+import { connect } from 'react-redux'
 
-const Mobile = ({ list, pageNum, pageChange, totalPage, dateCompare, handleChangeScroll, scroll, user }) => {
+const Mobile = ({ list,  pageChange, totalPage, dateCompare, handleChangeScroll, scroll, user }) => {
     const throttler = throttling();
     useEffect(() => {
         document.getElementById("boardUl").style.scrollBehavior = "auto"
@@ -13,22 +14,33 @@ const Mobile = ({ list, pageNum, pageChange, totalPage, dateCompare, handleChang
         document.getElementById("boardUl").style.scrollBehavior = "smooth"
     }, [])
 
-    const scrollEvent = useCallback(async() => {
+    const scrollEvent = useCallback(async () => {
         throttler.throttle(async () => {
             var boardUl = document.getElementById("boardUl")
             var scrollHeight = boardUl.scrollHeight
             var htmlHeight = boardUl.clientHeight
             var scrollPosition = boardUl.scrollTop
             handleChangeScroll(scrollPosition)
-            if (scrollHeight < Math.round(scrollPosition) + htmlHeight + 20 && boardUl.childElementCount !== totalPage) {
-                await pageChange(pageNum, Math.round(window.innerHeight / 50), false)
-                //스크롤이 바닥에 닿을때 딱 한번 실행되어야하는데, 딱 맞아 떨어지는 화면크기가 있는 반면에 1차이가 나는 화면도 있었다. 그래서 둘다 적용해줌.
+
+            if (scrollHeight < Math.round(scrollPosition) + htmlHeight + 400 && boardUl.childElementCount >= Math.round(window.innerHeight / 50 )) {
+                //맨 끝에 가기전까지는 로딩이미지, 맨 끝에서는 텍스트로 끝이라고 알려주기.
+                if(boardUl.childElementCount < totalPage){
+                    
+                    await pageChange(parseInt(sessionStorage.getItem("pageNum"))+1, Math.round(window.innerHeight / 50), false)
+
+                }else if(!document.getElementById("lastPost")){
+                    var lastPost = document.createElement("h3")
+                    lastPost.innerText = "페이지의 끝입니다."
+                    lastPost.id = "lastPost"
+                    boardUl.appendChild(lastPost)
+                }
+                
             }
         }, 400);
         // else if(scrollHeight === Math.round(scrollPosition) + htmlHeight + 1 && boardUl.childElementCount != totalPage){
         //     await pageChange(pageNum, Math.round(window.innerHeight / 86))
         // }
-    },[pageNum,totalPage])
+    }, [totalPage])
 
     const writeBtn = useCallback(() => {
         if (!user.id) {
@@ -38,19 +50,19 @@ const Mobile = ({ list, pageNum, pageChange, totalPage, dateCompare, handleChang
             document.getElementById("writeLink").click()
         }
 
-    },[user])
-    
+    }, [user])
+
     return (
-        <div style={{ height: "100%" }}>
-            <ul id="boardUl" onScroll={scrollEvent} style={{ scrollBehavior: "smooth", marginTop: "0", width: "100%", paddingBottom: "130px", paddingLeft: "15px", height: window.innerHeight - 40, overflow: "scroll", listStyleType: "none" }}>
+        <div style={{ height: window.innerHeight - 40 }}>
+            <ul id="boardUl" onScroll={scrollEvent} style={{ scrollBehavior: "smooth", marginTop: "0", width: "100%", paddingBottom: "70px", paddingLeft: "15px", height: window.innerHeight - 40, overflow: "scroll", listStyleType: "none" }}>
                 {list.map((data, index) => {
                     return (
-                        <li className={data.thumbnail ? "boardList" : "boardList thumbnailLess"}>
-                            <Link to={"/view/" + data.postId}>
+                        <li key={index} className={data.thumbnail ? "boardList" : "boardList thumbnailLess"}>
+                            <Link to={"/view/?postId=" + data.postId}>
                                 {data.thumbnail ?
                                     <div className="right">
                                         <i>
-                                            <img src={"https://jaehoon-bucket.s3-website.ap-northeast-2.amazonaws.com/" + data.thumbnail} alt="" />
+                                            <img src={"https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/" + data.thumbnail} alt="" />
                                         </i>
                                     </div> : ""
                                 }
@@ -60,10 +72,9 @@ const Mobile = ({ list, pageNum, pageChange, totalPage, dateCompare, handleChang
                                         <dd className="writer">{data.userId}</dd>
                                         {data.thumbnail ? <dd className="date thumbnail">{dateCompare(data.updatePost)}</dd> : <dd className="date">{dateCompare(data.updatePost)}</dd>}
                                         <dd className="etc">
-                                        <span id="count-comment" className="iconSpan">{data.commentCount}</span>
-
-<span id="count-read" className="iconSpan">{data.views}</span>
-<span id="count-likes" className="iconSpan">{data.likeCount}</span>
+                                            <span id="count-comment" className="iconSpan">{data.commentCount}</span>
+                                            <span id="count-read" className="iconSpan">{data.views}</span>
+                                            <span id="count-likes" className="iconSpan">{data.likeCount}</span>
                                         </dd>
                                     </dl>
                                 </div>
@@ -81,4 +92,16 @@ const Mobile = ({ list, pageNum, pageChange, totalPage, dateCompare, handleChang
     )
 }
 
-export default Mobile;
+//스토어 객체에 접근할 수 있게 해줌.
+const mapStateToProps = ({ board }) => ({
+    user: board.user,
+    scroll: board.scroll,
+    list : board.list,
+    totalPage : board.totalPage
+
+});
+
+
+export default connect(
+    mapStateToProps
+)(Mobile);

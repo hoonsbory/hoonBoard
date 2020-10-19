@@ -4,7 +4,7 @@ const models = require('../models')
 const sequelize = require('sequelize')
 
 
-app.post('/boardList', (req, res) => {
+app.post('/boardList', (req, res, next) => {
     // models.posts.hasMany(models.likes, {foreignKey : 'postId'})
     // models.likes.belongsTo(models.posts, {foreignKey : 'postId'})
     // console.log(req.body.page);
@@ -35,11 +35,13 @@ app.post('/boardList', (req, res) => {
     var sql;
     var pageSize;
     var page;
+    //좋아요를 누르거나 댓글을 등록하고나서 정보를 다시 로드해야하기 떄문에, 쿼리에서 limit를 다시 설정해줄 필요가 있어서 조건을 걸어주었다.
+    //원래는 특정 개수만큼 쿼리에서 가져오지만, 새로고침의 개념이기 때문에 여태까지 concat한 리스트를 전부 다시 불러온다.
     if (!req.body.mobileReload) {
         pageSize = req.body.size
         page = req.body.page * pageSize == 0 ? 0 : (req.body.page * pageSize) - pageSize
-    }else{
-        pageSize = req.body.page * req.body.size 
+    } else {
+        pageSize = req.body.page * req.body.size
         page = 0;
     }
 
@@ -90,12 +92,16 @@ app.post('/boardList', (req, res) => {
 
             break;
     }
-    models.sequelize.query(sql, option
-    ).then(function (result) {
-        if(result[0])
-        res.send({list: result, length: result[0].length})
-        else res.send({list : false})
-    })
+    try {
+        models.sequelize.query(sql, option
+        ).then(function (result) {
+            if (result[0])
+                res.send({ list: result, length: result[0].length })
+            else res.send({ list: false })
+        })
+    } catch (error) {
+        next(error)
+    }
 
 })
 

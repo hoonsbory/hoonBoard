@@ -8,7 +8,7 @@ module.exports =  {
 
   host: process.env.SQLHOST,
   port: '3306',
-  user: process.env.USER,
+  user: process.env.DBUSER,
   password: process.env.PASSWORD,
   database: process.env.DATABASE
 

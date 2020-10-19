@@ -27,7 +27,7 @@ const Login = ({boardActions,popupChange}) => {
             }
         ).then(res => {
             if (res.data.id === undefined) {	// 로그인 실패 빈 json형식이 넘어온 경우
-                alert('login fail!');
+                alert('아이디 혹은 비밀번호가 일치하지 않습니다');
             } else {
                 boardActions.user(res.data)
                 document.getElementById("loginId").value = ""
@@ -36,6 +36,8 @@ const Login = ({boardActions,popupChange}) => {
             }
             // this.setState({ users : data })
 
+        }).catch(err=>{
+            alert("잘못된 요청입니다.")
         })
     },[]),200)
 
@@ -53,9 +55,6 @@ const Login = ({boardActions,popupChange}) => {
     )
 }
 
-const mapStateToProps = ({ board }) => ({
-    user: board.user,
-});
 
 //스토어의 액션을 조작할 수 있게 해줌
 const mapDispatchToProps = dispatch => ({
@@ -63,6 +62,6 @@ const mapDispatchToProps = dispatch => ({
     // AnotherActions: bindActionCreators(anotherActions, dispatch)
 });
 export default connect(
-    mapStateToProps,
+    null,
     mapDispatchToProps
 )(Login);

@@ -3,6 +3,7 @@ import PaginationComponent from "react-reactstrap-pagination";
 import { Button } from 'reactstrap'
 import '../css/board.scss'
 import { Link } from 'react-router-dom'
+import { connect } from 'react-redux';
 
 const NotMobile = ({ list2, totalPage, pageChange, dateCompare, pageNum, user }) => {
     //axios를 변수에 담지않고 렌더링전에 그냥 실행시키면 자꾸 무한 루프를 돈다. 이유는 모르겠다. 
@@ -27,32 +28,32 @@ const NotMobile = ({ list2, totalPage, pageChange, dateCompare, pageNum, user })
         }
 
     },[user])
-
+    
     return (
         <div>
             <ul style={{ listStyleType: "none", padding: "0" }}>
 
                 {list2.map((data, index) => {
                     return (
-                        <li className={data.thumbnail ? "boardList" : "boardList thumbnailLess"}>
-                            <Link to={"/view/" + data.postId}>
+                        <li key={index} className={data.thumbnail ? "boardList" : "boardList thumbnailLess"}>
+                            <Link to={"/view/?postId=" + data.postId}>
                                 {data.thumbnail ?
                                     <div className="right pc">
                                         <i>
-                                            <img src={"https://jaehoon-bucket.s3-website.ap-northeast-2.amazonaws.com/" + data.thumbnail} alt="" />
+                                            <img src={"https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/" + data.thumbnail} alt="" />
                                         </i>
                                     </div> : ""
                                 }
-                                <div className="left">
+                                <div className={data.thumbnail ? "left thumbnail" : "left"}>
                                     <h3>{data.title}</h3>
                                     <dl className="write-info mb-2">
                                         <dd className="writer">{data.userId}</dd>
                                         {data.thumbnail ? <dd className="date thumbnail">{dateCompare(data.updatePost)}</dd> : <dd className="date">{dateCompare(data.updatePost)}</dd>}
                                         <dd className="etc">
-                                            <dd id="count-comment" className="iconDd">{data.commentCount}</dd>
+                                            <span id="count-comment" className="iconSpan">{data.commentCount}</span>
 
-                                            <dd id="count-read" className="iconDd">{data.views}</dd>
-                                            <dd id="count-likes" className="iconDd">{data.likeCount}</dd>
+                                            <span id="count-read" className="iconSpan">{data.views}</span>
+                                            <span id="count-likes" className="iconSpan">{data.likeCount}</span>
                                         </dd>
                                     </dl>
                                 </div>
@@ -68,7 +69,7 @@ const NotMobile = ({ list2, totalPage, pageChange, dateCompare, pageNum, user })
                     pageSize={1}
                     onSelect={handleSelected}
                     maxPaginationNumbers={5}
-                    defaultActivePage={pageNum === 1 ? 1 : pageNum - 1}
+                    defaultActivePage={pageNum === 1 ? 1 : pageNum -1}
                     size="sm"
                 />
                 <Link id="writeLink" to="/post/false"></Link>
@@ -78,5 +79,13 @@ const NotMobile = ({ list2, totalPage, pageChange, dateCompare, pageNum, user })
     )
 }
 
+const mapStateToProps = ({ board }) => ({
+    list2: board.list2,
+    user: board.user,
+    totalPage : board.totalPage,
+    pageNum : board.pageNum
+});
 
-export default NotMobile
+export default connect(
+    mapStateToProps
+)(NotMobile);
