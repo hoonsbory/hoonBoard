@@ -20,6 +20,7 @@ const corsOptions = {
   origin: "https://hoonboard.herokuapp.com",
   credentials: true
 }
+const dir = "client/build"
 connection.on('error', function () { });
 
 const app = express()
@@ -31,7 +32,7 @@ app.use(express.urlencoded({ limit: "20mb", extended: false }));
 app.use(cors(corsOptions));
 
 //express에서 정적파일을 제공하는 방법.
-app.use(express.static(path.join(__dirname, "client/build")));
+app.use(express.static(path.join(__dirname, dir)));
 
 //위에서 폴더르 static하게 해놓고 root url에 index.html파일을 보내서 렌더링한다.
 //react-snap과 같이 쓰면 어떤식으로 써야할지 감이 안온다.
@@ -170,7 +171,7 @@ app.get('/view', function (req, res, next) {
     raw: true
   }).then(result => {
     if (result) {
-      const filePath = path.resolve(__dirname, 'client/build', 'index.html')
+      const filePath = path.resolve(__dirname, dir, 'index.html')
       fs.readFile(filePath, 'utf8', function (err, data) {
         if (err) {
           return console.log(err);
@@ -178,16 +179,23 @@ app.get('/view', function (req, res, next) {
         data = data.replace(/\FullStack Junior's Note/g, result.title);
         data = data.replace(/\풀스택 주니어의 웹개발노트입니다./g, result.description);
         result2 = data.replace(/\hoondevnote.ml/g, "hoondevnote.ml/view?postId=" + req.query.postId);
-        // res.send(result2)
-        const dir = "client/build"
-          fs.writeFileSync(dir + "/index" + req.query.postId + ".html", result2, (err) => {
+        fs.writeFileSync(dir + "/index"+req.query.postId + ".html", result2, (err) => {
+          console.log(err);
+        })
+      });
+      //사이트맵 생성
+      fs.readFile(dir + "/sitemap.xml", 'utf8', (err, data) => {
+        if (err) return console.log(err);
+        if (data.indexOf("postId=" + req.query.postId) === -1) {
+          data = data.replace(/\/urlset/g, "url")
+          data += "\n<loc>https://hoonboard.herokuapp.com/view?postId=" + req.query.postId + "</loc>\n</url>\n</urlset>"
+          fs.writeFile(dir + "/sitemap.xml", data, (err) => {
             console.log(err);
           })
-        
-        res.sendFile(path.join(__dirname, dir, "index" + req.query.postId + ".html"));
+        }
+      })
 
-      });
-
+      res.sendFile(path.join(__dirname, dir, "index" + req.query.postId + ".html"));
     } else {
       res.redirect("/error")
     }
@@ -202,7 +210,7 @@ app.use(function (err, req, res, next) {
   //에러를 하나하나 친절하게 안내해줄 고객이 있는 것은 아니니까 그냥 대충 잘못된 요청이라고만 클라이언트에서 alert띄워줌
 });
 app.get('/error', function (req, res) {
-  res.sendFile(path.join(__dirname, "client/build", "index.html"));
+  res.sendFile(path.join(__dirname, dir, "index.html"));
 });
 
 //맨 마지막에 모든 유효하지 않은 경로에 대해 예외처리를 한다.
