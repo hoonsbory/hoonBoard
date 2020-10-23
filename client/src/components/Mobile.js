@@ -29,6 +29,7 @@ const Mobile = ({ list,  pageChange, totalPage, dateCompare, handleChangeScroll,
                     await pageChange(parseInt(sessionStorage.getItem("pageNum"))+1, Math.round(window.innerHeight / 50), false)
 
                 }else if(!document.getElementById("lastPost")){
+                    document.getElementById("pageLoading").remove()
                     var lastPost = document.createElement("h3")
                     lastPost.innerText = "페이지의 끝입니다."
                     lastPost.id = "lastPost"

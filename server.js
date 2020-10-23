@@ -188,7 +188,7 @@ app.get('/view', function (req, res, next) {
         if (err) return console.log(err);
         if (data.indexOf("postId=" + req.query.postId) === -1) {
           data = data.replace(/\/urlset/g, "url")
-          data += "\n<loc>https://hoonboard.herokuapp.com/view?postId=" + req.query.postId + "</loc>\n</url>\n</urlset>"
+          data += "\n<loc>https://hoondevnote.ml/view?postId=" + req.query.postId + "</loc>\n</url>\n</urlset>"
           fs.writeFile(dir + "/sitemap.xml", data, (err) => {
             console.log(err);
           })

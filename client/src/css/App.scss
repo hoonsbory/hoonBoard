@@ -42,7 +42,7 @@ a:hover{
     display: block;
     color: #aaa;
   }
-@media(max-width : "900px"){
+@media(max-width : "767PX"){
     html{
         font-size : 14px
     }
@@ -57,5 +57,10 @@ a:hover{
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+    }
+    .right{
+        right: 10px !important;
+        width: 85px !important;
+        height: 100% !important;
     }
 }
