@@ -20,7 +20,8 @@ const corsOptions = {
   origin: "https://hoonboard.herokuapp.com",
   credentials: true
 }
-const dir = "client/build"
+//쉘스크립트 파일을 실행시켜서, 원래 있던 html 및 사이트맵 이동시켜놓고 빌드 후 다시 파일 합침. 따로 정적 폴더를 만든 이유는 빌드하는 동안은 유저가 이용할 수 없기 때문.
+const dir = "client/build/realBuildDir"
 connection.on('error', function () { });
 
 const app = express()
@@ -178,9 +179,11 @@ app.get('/view', function (req, res, next) {
         }
         data = data.replace(/\FullStack Junior's Note/g, result.title);
         data = data.replace(/\풀스택 주니어의 웹개발노트입니다./g, result.description);
+        data = data.replace(/\postDate/g, result.updatePost);
         result2 = data.replace(/\hoondevnote.ml/g, "hoondevnote.ml/view?postId=" + req.query.postId);
-        fs.writeFileSync(dir + "/index"+req.query.postId + ".html", result2, (err) => {
+        fs.writeFile(dir + "/index"+req.query.postId + ".html", result2, (err) => {
           console.log(err);
+          res.sendFile(path.join(__dirname, dir, "index" + req.query.postId + ".html"));
         })
       });
       //사이트맵 생성
@@ -194,8 +197,6 @@ app.get('/view', function (req, res, next) {
           })
         }
       })
-
-      res.sendFile(path.join(__dirname, dir, "index" + req.query.postId + ".html"));
     } else {
       res.redirect("/error")
     }

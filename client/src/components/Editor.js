@@ -158,7 +158,7 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
             content: editor.innerHTML,
             thumbnail: editor.getElementsByTagName("img")[0] ? editor.getElementsByTagName("img")[0].src.split("https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/")[1] : "",
             title: input.value.trim(),
-            description: editor.textContent.trim().substr(0, 70)
+            description: editor.textContent.trim().substr(0, 150)
           }, (res) => {
             renderTrigger()
             document.getElementById("loadingBg").style.display = "none"
@@ -235,7 +235,7 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
         thumbnail: editor.getElementsByTagName("img")[0] ? editor.getElementsByTagName("img")[0].src.split("https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/")[1] : "",
         title: input.value.trim(),
         postId: viewPost.postId,
-        description: editor.textContent.trim().substr(0, 70)
+        description: editor.textContent.trim().substr(0, 150)
       }, (res) => {
         renderTrigger()
         document.getElementById("loadingBg").style.display = "none"

@@ -8,7 +8,7 @@ const env = process.env.NODE_ENV;
 const config = require(__dirname + '/../config/'+env.trim()+'.json')
 const db = {};
 //여기에 직접 값을 넣었을 때는 적용이 안된다. config에 적어주니까 된다.. 이유가 뭐지
-let sequelize = new Sequelize({logging: config.logging, timezone: config.timezone, host: config.host, username: config.username, password: config.password, port: config.port, database: config.database, dialect: 'mysql' })
+let sequelize = new Sequelize({dialectOptions : config.dialectOptions, logging: config.logging,  host: config.host, username: config.username, password: config.password, port: config.port, database: config.database, dialect: 'mysql' })
 
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);

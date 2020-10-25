@@ -94,12 +94,12 @@ const BoardContainer = ({ boardActions, search, input, renderTrigger }) => {
                     }
                     else {
                         boardActions.list(res.data.list)
-                        if(!document.getElementById("pageLoading")){
+                        if(!document.getElementById("pageLoading")&&document.getElementsByClassName("mobileList")[0]){
                             var loading = document.createElement('img')
                             loading.src = "https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/1601446938150loading.gif"
                             loading.id = "pageLoading"
                             loading.width = 60
-                            document.getElementById("boardUl").appendChild(loading)
+                            document.getElementsByClassName("mobileList")[0].appendChild(loading)
                             }
                     }
                 }

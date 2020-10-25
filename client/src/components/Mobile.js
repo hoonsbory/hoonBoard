@@ -55,7 +55,7 @@ const Mobile = ({ list,  pageChange, totalPage, dateCompare, handleChangeScroll,
 
     return (
         <div style={{ height: window.innerHeight - 40 }}>
-            <ul id="boardUl" onScroll={scrollEvent} style={{ scrollBehavior: "smooth", marginTop: "0", width: "100%", paddingBottom: "70px", paddingLeft: "15px", height: window.innerHeight - 40, overflow: "scroll", listStyleType: "none" }}>
+            <ul id="boardUl" className="mobileList" onScroll={scrollEvent} style={{ scrollBehavior: "smooth", marginTop: "0", width: "100%", paddingBottom: "70px", paddingLeft: "10px", paddingRight : "10px", height: window.innerHeight - 40, overflow: "scroll", listStyleType: "none" }}>
                 {list.map((data, index) => {
                     return (
                         <li key={index} className={data.thumbnail ? "boardList" : "boardList thumbnailLess"}>

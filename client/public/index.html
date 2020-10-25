@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/board.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0" />
-    <meta name="theme-color" content="#000000" />
-    
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/board.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0" />
+  <meta name="theme-color" content="#000000" />
+
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+  <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    
-    
-    <!--
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+
+  <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
       Only files inside the `public` folder can be referenced from the HTML.
@@ -23,27 +24,34 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>FullStack Junior's Note</title>
-<meta name="description"        content="풀스택 주니어의 웹개발노트입니다." />
-<meta property="og:title"       content="FullStack Junior's Note" />
-<meta property="og:description" content="풀스택 주니어의 웹개발노트입니다." />
-<meta property="og:image"       content="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/board.png" />
-<meta property="og:url"         content="https://hoondevnote.ml"/>
-<meta property="og:site_name" content="FullStack Junior's Note" />
-<meta property="twitter:title"       content="FullStack Junior's Note" />
-<meta property="twitter:description" content="풀스택 주니어의 웹개발노트입니다." />
-<meta property="twitter:image"       content="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/board.png" />
-<meta property="twitter:site" content="FullStack Junior's Note" />
-<link rel="canonical" href="https://hoondevnote.ml" />
-<meta property="og:type" content="website" />
+  <title>FullStack Junior's Note</title>
+  <meta name="description" content="풀스택 주니어의 웹개발노트입니다." />
+  <meta property="og:title" content="FullStack Junior's Note" />
+  <meta property="og:description" content="풀스택 주니어의 웹개발노트입니다." />
+  <meta property="og:image" content="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/board.png" />
+  <meta property="og:url" content="https://hoondevnote.ml" />
+  <meta property="og:site_name" content="FullStack Junior's Note" />
+  <meta property="twitter:title" content="FullStack Junior's Note" />
+  <meta property="twitter:description" content="풀스택 주니어의 웹개발노트입니다." />
+  <meta property="twitter:image" content="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/board.png" />
+  <meta property="twitter:site" content="FullStack Junior's Note" />
+  <link rel="canonical" href="https://hoondevnote.ml" />
+  <meta property="og:type" content="website" />
 
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root">
-      
-    </div>
-    <!--
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <!-- 새로 나온 다음웹마스터도구를 위한 태그. 
+    다음 역시 자바스크립트 랜더링 전에 크롤하기 때문에 서버에서 태그에 내용 심어줌. -->
+  <div style="display : none">
+    <div class="daum-wm-title">FullStack Junior's Note</div>
+    <div class="daum-wm-datetime">postDate</div>
+    <div class="daum-wm-content">풀스택 주니어의 웹개발노트입니다.</div>
+  </div>
+  <div id="root">
+  </div>
+  <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
 
@@ -53,5 +61,6 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
-  </body>
+</body>
+
 </html>

@@ -1,13 +1,17 @@
 #!bin/bash
 
 if [ -d node_modules ] ; then
-cp build/index*.html htmlDir
+cp realBuildDir/index*.html htmlDir
 
 npm run build
 
+rm -r realBuildDir/static
+
 rm htmlDir/index.html
 
-mv htmlDir/*.html build
+mv build/* realBuildDir
+
+mv htmlDir/*.html realBuildDir
 
 else
 npm install
