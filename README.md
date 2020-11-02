@@ -4,9 +4,6 @@
 
 
 
-
-
-
 <h1 align="center" style="color:blue">Welcome to HoonBoard   👋</h1>
 <p>
   <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000" />
@@ -30,10 +27,44 @@
 - Redux
 - Passport
 
-### 🏠 [Homepage](https://hoonboard.herokuapp.com)
+### `Images`
+
+
+### Scroll Paging
+<img src="scroll.gif"/>
+<br/>
+
+### Sign Up & Login
+<img src="login.gif"/>
+<br/>
+
+### Posting
+<img src="posting.gif"/>
+<br/>
+
+### Re-render after Login & Logout
+<img src="render.gif"/>
+<br/>
+
+### Comment
+<img src="comment.gif"/>
+<br/>
+
+### Searching
+<img src="search.gif"/>
+<br/>
+
+### Upload Image
+<img src="imageUpload.gif"/>
+<br/>
+
+### Dynamic sitemap Update
+<img src="sitemap.gif"/>
+
+### 🏠 [Homepage](https://hoondevnote.ml)
 <div>
-<img width="400px"  style="float : left; margin-right : 300px;" src="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/abstract01.jpg">
-<img width="400px"   style="float : right;" src="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/board02.jpg">
+<img width="400px"   src="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/abstract01.jpg">
+<img width="400px"   src="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/board02.jpg">
 </div>
 
 ## Author
