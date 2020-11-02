@@ -318,6 +318,7 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
     //quill내에서 highlight가 적용이 안돼서, 직접 적용시켰다. 엔터키를 누를때마다 적용이되고, 아래처럼 아이콘을 클릭해도 적용이 된다.
     document.getElementsByClassName("ql-code-block")[0].onclick = () => {
       document.querySelectorAll('pre').forEach((block) => {
+        if(block.className.indexOf("hljs") === -1)
         hljs.highlightBlock(block);
       });
     }

@@ -19,7 +19,8 @@ const CommentList = ({ user, commentList, dateCompare, sendChildComment, sendUpd
     const like = {
         backgroundImage: "URL(https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/heart.png)",
         backgroundRepeat: "no-repeat",
-        backgroundSize: '100%',
+        backgroundSize: 'contain',
+        backgroundPositionX : "100%",
         height: "14px",
         marginRight: "3px",
         position: "relative",
@@ -28,7 +29,8 @@ const CommentList = ({ user, commentList, dateCompare, sendChildComment, sendUpd
     const unLike = {
         backgroundImage: "URL(https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/emptyHeart.png)",
         backgroundRepeat: "no-repeat",
-        backgroundSize: '100%',
+        backgroundSize: 'contain',
+        backgroundPositionX : "100%",
         height: "14px",
         marginRight: "3px",
         position: "relative",

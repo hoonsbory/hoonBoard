@@ -22,6 +22,7 @@ const Popup = ({closePopup}) => {
             document.getElementById("loginDiv").style.display = "none"
             document.getElementById("signupDiv").style.display = "block"
             document.getElementById("signupDiv").style.animation = "fadeIn3 .6s forwards"
+            document.getElementById("inputId").focus()
         }, 300);
     },[])
     return (

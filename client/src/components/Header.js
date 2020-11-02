@@ -38,6 +38,7 @@ const Header = ({ user, pageChange, ua, handleChangeUser, handleChange,  handleC
             document.getElementById("loginDiv").style.display = "block"
             document.getElementById("loginDiv").style.animation = "unset"
             document.getElementById("signupDiv").style.display = "none"
+            document.getElementById("loginId").focus()
             setOpen2(false)
         }
     },[open2])
@@ -108,11 +109,7 @@ const Header = ({ user, pageChange, ua, handleChangeUser, handleChange,  handleC
                         //직접 노드 자식수를 조건으로 루프를 돌려서 스크롤 이벤트가 발생하지 않게 한다.
                         //아래 조건은 리스트가 아닌 글작성중, 혹은 글을 보고 있을때 검색하면, 생성된 리스트가 없기때문에 에러가 발생하기떄문에 넣었다.
                         if (boardUl) {
-                            var count = boardUl.childElementCount
-                            await pageChange(1, Math.round(window.innerHeight / 50), false)
-                            for (var i = 0; i < count; i++) {
-                                boardUl.removeChild(boardUl.firstChild)
-                            }
+                            await pageChange(1, Math.round(window.innerHeight / 50), true)
                             boardUl.scrollTo(0,0)
                         }
                     } else {

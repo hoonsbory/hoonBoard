@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { throttling } from './throttle.js';
 import { connect } from 'react-redux'
 
-const Mobile = ({ list,  pageChange, totalPage, dateCompare, handleChangeScroll, scroll, user }) => {
+const Mobile = ({ list, pageChange, totalPage, dateCompare, handleChangeScroll, scroll, user }) => {
     const throttler = throttling();
     useEffect(() => {
         document.getElementById("boardUl").style.scrollBehavior = "auto"
@@ -22,20 +22,26 @@ const Mobile = ({ list,  pageChange, totalPage, dateCompare, handleChangeScroll,
             var scrollPosition = boardUl.scrollTop
             handleChangeScroll(scrollPosition)
 
-            if (scrollHeight < Math.round(scrollPosition) + htmlHeight + 400 && boardUl.childElementCount >= Math.round(window.innerHeight / 50 )) {
+            if (scrollHeight < Math.round(scrollPosition) + htmlHeight + 400 && boardUl.childElementCount >= Math.round(window.innerHeight / 50)) {
                 //맨 끝에 가기전까지는 로딩이미지, 맨 끝에서는 텍스트로 끝이라고 알려주기.
-                if(boardUl.childElementCount < totalPage){
-                    
-                    await pageChange(parseInt(sessionStorage.getItem("pageNum"))+1, Math.round(window.innerHeight / 50), false)
-
-                }else if(!document.getElementById("lastPost")){
+                if (boardUl.childElementCount < totalPage) {
+                    if (!document.getElementById("pageLoading") && !document.getElementById("lastPost")) {
+                        var loading = document.createElement('img')
+                        loading.src = "https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/1601446938150loading.gif"
+                        loading.id = "pageLoading"
+                        loading.width = 60
+                        document.getElementsByClassName("mobileList")[0].appendChild(loading)
+                    }
+                    await pageChange(parseInt(sessionStorage.getItem("pageNum")) + 1, Math.round(window.innerHeight / 50), false)
+                }
+                else if (!document.getElementById("lastPost")) {
                     document.getElementById("pageLoading").remove()
                     var lastPost = document.createElement("h3")
                     lastPost.innerText = "페이지의 끝입니다."
                     lastPost.id = "lastPost"
                     boardUl.appendChild(lastPost)
                 }
-                
+
             }
         }, 400);
         // else if(scrollHeight === Math.round(scrollPosition) + htmlHeight + 1 && boardUl.childElementCount != totalPage){
@@ -55,7 +61,7 @@ const Mobile = ({ list,  pageChange, totalPage, dateCompare, handleChangeScroll,
 
     return (
         <div style={{ height: window.innerHeight - 40 }}>
-            <ul id="boardUl" className="mobileList" onScroll={scrollEvent} style={{ scrollBehavior: "smooth", marginTop: "0", width: "100%", paddingBottom: "70px", paddingLeft: "10px", paddingRight : "10px", height: window.innerHeight - 40, overflow: "scroll", listStyleType: "none" }}>
+            <ul id="boardUl" className="mobileList" onScroll={scrollEvent} style={{ scrollBehavior: "smooth", marginTop: "0", width: "100%", paddingBottom: "70px", paddingLeft: "10px", paddingRight: "10px", height: window.innerHeight - 40, overflow: "scroll", listStyleType: "none" }}>
                 {list.map((data, index) => {
                     return (
                         <li key={index} className={data.thumbnail ? "boardList" : "boardList thumbnailLess"}>
@@ -97,8 +103,8 @@ const Mobile = ({ list,  pageChange, totalPage, dateCompare, handleChangeScroll,
 const mapStateToProps = ({ board }) => ({
     user: board.user,
     scroll: board.scroll,
-    list : board.list,
-    totalPage : board.totalPage
+    list: board.list,
+    totalPage: board.totalPage
 
 });
 

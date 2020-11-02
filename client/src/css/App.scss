@@ -42,16 +42,19 @@ a:hover{
     display: block;
     color: #aaa;
   }
-@media(max-width : "767PX"){
-    html{
-        font-size : 14px
-    }
+@media(max-width : "900px"){
     body{
         width : 100% !important
     }
     #boardNav{
         width : 100% !important
     }
+}
+@media(max-width : "767PX"){
+    html{
+        font-size : 14px
+    }
+    
     .writer{
         max-width: 30vw;
         overflow: hidden;

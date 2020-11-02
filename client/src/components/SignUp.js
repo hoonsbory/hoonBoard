@@ -63,11 +63,12 @@ const SignUp = () => {
                 document.getElementById("inputId").value = ""
                 document.getElementById("inputName").value = ""
                 document.getElementById("inputPw").value = ""
+                setDuplicate(false)
+                document.getElementById("popupBg").click()
+                setTimeout(() => {
+                    document.getElementById("leftNav").click()
+                }, 1000);
             }
-            document.getElementById("popupBg").click()
-            setTimeout(() => {
-                document.getElementById("leftNav").click()
-            }, 1000);
         })
     }, 200)
     const duplicateMsg = {

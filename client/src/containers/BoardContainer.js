@@ -63,12 +63,7 @@ const BoardContainer = ({ boardActions, search, input, renderTrigger }) => {
     const handleChangeUser = (e) => {
         boardActions.user(e)
     }
-    //무한스크롤버전과 번호형식의 페이징버전을 한 함수로 통일하려고 했지만,
-    //스크롤 이벤트가 발생하고 state를 갱신후 loop를 통해 노드를 생성하는데, 훅의 usestate를 써도, 리덕스를 써도 ,async와 await을 사용해도 갱신된 state가 같은 함수내에서 표현이 안된다.
-    //settimeout을 통해 다른 함수로 꺼내놓고 실행을 해도 안된다. 
-    //그래서 결국 스크롤이 진행되면 1번째때 받아온 리스트를 2번쨰의 이벤트에서 노드생성을 한다. 이렇게되면 마지막에 불필요한 쿼리를 날린다.
-    //예 -> 비동기처리방식 때문에 스토어에 10번째 리스트가 있으면 실제로 스크롤때 생성되는건 9번째기때문에. 마지막 10번째 리스트를 생성하기 위해선
-    //11번째 리스트를 부르기위한 쿼리를 날려야한다.
+    
     const pageChange = async (selectedPage, size, mobileReload) => {
         //모바일 기기 가로 세로 전환 시 뷰포트의 높이에 따라 생성되던 리스트 길이가 달라지기 때문에, 데이터의 순서가 꼬인다. 
         //높이가 달라져도 유지할 수 있게 조건을 넣어줌.
