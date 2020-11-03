@@ -18,7 +18,6 @@ const ViewPost = ({ location, user, boardActions, renderTrigger, viewPost, dateC
     const [commentList, setCommentList] = useState([])
     const query = queryString.parse(location.search);
     const history = useHistory();
-
     const handleUser = useCallback(() => {
         boardActions.user("")
     }, [])
@@ -29,13 +28,12 @@ const ViewPost = ({ location, user, boardActions, renderTrigger, viewPost, dateC
 
     const axiosFunc = axios(user, handleUser, handleTrigger);
 
-    const getPost = useCallback(() => {
-        axiosFunc.axiosPost("/api/viewPost", { postId: query.postId }, (res) => {
+    const getPost = useCallback(async() => {
+        await axiosFunc.axiosPost("/api/viewPost", { postId: query.postId }, (res) => {
             boardActions.viewPost(res.data.post)
             setCommentList(res.data.comment)
             document.getElementById("viewPost").innerHTML = res.data.post.content
             document.getElementById("viewHeader").parentNode.style.display = "block"
-            sessionStorage.setItem("check", true)
         }, (err) => { if (err.response.data) history.push("/error") })
     }, [])
 
@@ -204,7 +202,7 @@ const ViewPost = ({ location, user, boardActions, renderTrigger, viewPost, dateC
     }
 
     return (
-        <div style={{ display: "none", padding: '0 20px' }}>
+        <section style={{ display: "none", padding: '0 20px' }}>
             <Helmet>
                 <title>{viewPost.title}</title>
                 <meta property="og:image" content="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/board.png" />
@@ -218,7 +216,7 @@ const ViewPost = ({ location, user, boardActions, renderTrigger, viewPost, dateC
                 <meta name="description" content={viewPost.description}></meta>
             </Helmet>
             <Loading></Loading>
-            <div id="viewHeader" style={viewHeader}>
+            <header id="viewHeader" style={viewHeader}>
                 <h4>{viewPost.title}</h4>
                 <dl className="write-info mb-0" >
                     <dd style={{ marginRight: '5px', float: "unset" }} className="write">{viewPost.userId}</dd>
@@ -226,15 +224,15 @@ const ViewPost = ({ location, user, boardActions, renderTrigger, viewPost, dateC
                     <dd id="count-read" className="iconSpan">{viewPost.views}</dd>
                     {user.id === viewPost.userId ? <div style={deleteUpdate}><Link style={{ color: "gray" }} to={"/post/update"}>수정</Link>&nbsp;<button onClick={deletePost} style={{ color: "gray" }}>삭제</button></div> : ""}
                 </dl>
-            </div>
-            <div className="ql-container ql-snow" style={{ border: "unset" }}>
+            </header>
+            <article className="ql-container ql-snow" style={{ border: "unset" }}>
                 <div id="viewPost" className="ql-editor view" style={postStyle}></div>
-            </div>
+            </article>
             <Like like={like} likeCheck={viewPost.likeCheck} likeCount={viewPost.likeCount}></Like>
             <h4>댓글 ({commentList.length})</h4>
             <Comment sendParentComment={sendParentComment}></Comment>
             <CommentList likeComment={likeComment} deleteComment={deleteComment} sendUpdateComment={sendUpdateComment} user={user} sendChildComment={sendChildComment} boardActions={boardActions} dateCompare={dateCompare} commentList={commentList}></CommentList>
-        </div>
+        </section>
     )
 }
 

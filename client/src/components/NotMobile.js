@@ -30,7 +30,7 @@ const NotMobile = ({ list2, totalPage, pageChange, dateCompare, pageNum, user })
     },[user])
     
     return (
-        <div>
+        <section>
             <ul style={{ listStyleType: "none", padding: "0" }}>
 
                 {list2.map((data, index) => {
@@ -38,7 +38,7 @@ const NotMobile = ({ list2, totalPage, pageChange, dateCompare, pageNum, user })
                         <li key={index} className={data.thumbnail ? "boardList" : "boardList thumbnailLess"}>
                             <Link to={"/view/?postId=" + data.postId}>
                                 {data.thumbnail ?
-                                    <div className="right pc">
+                                    <div className="right">
                                         <i>
                                             <img src={"https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/" + data.thumbnail} alt="" />
                                         </i>
@@ -62,7 +62,7 @@ const NotMobile = ({ list2, totalPage, pageChange, dateCompare, pageNum, user })
                 }
                 )}
             </ul>
-            <div style={{ textAlign: "center" }}>
+            <nav style={{ textAlign: "center" }}>
                 {/* 페이징처리. 서버에서 row의 개수를 받아와서 10개 미만일시에는 1페이지만 나오게 10개 이상일때는 10을 나누어주어서 알맞게 나오게함 */}
                 <PaginationComponent
                     totalItems={totalPage < 10 ? 1 : totalPage / 10}
@@ -74,8 +74,8 @@ const NotMobile = ({ list2, totalPage, pageChange, dateCompare, pageNum, user })
                 />
                 <Link id="writeLink" to="/post/false"></Link>
                 <Button  className="writeClass" onClick={writeBtn} style={{ float: "right", position: "relative", right: "15px" }} size="sm" color="primary">글쓰기</Button>
-            </div>
-        </div>
+            </nav>
+        </section>
     )
 }
 

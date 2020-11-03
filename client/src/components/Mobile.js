@@ -13,7 +13,6 @@ const Mobile = ({ list, pageChange, totalPage, dateCompare, handleChangeScroll, 
         document.getElementById("boardUl").scrollTo(0, scroll)
         document.getElementById("boardUl").style.scrollBehavior = "smooth"
     }, [])
-
     const scrollEvent = useCallback(async () => {
         throttler.throttle(async () => {
             var boardUl = document.getElementById("boardUl")
@@ -35,7 +34,7 @@ const Mobile = ({ list, pageChange, totalPage, dateCompare, handleChangeScroll, 
                     await pageChange(parseInt(sessionStorage.getItem("pageNum")) + 1, Math.round(window.innerHeight / 50), false)
                 }
                 else if (!document.getElementById("lastPost")) {
-                    document.getElementById("pageLoading").remove()
+                    if(document.getElementById("pageLoading")) document.getElementById("pageLoading").remove()
                     var lastPost = document.createElement("h3")
                     lastPost.innerText = "페이지의 끝입니다."
                     lastPost.id = "lastPost"
@@ -60,7 +59,7 @@ const Mobile = ({ list, pageChange, totalPage, dateCompare, handleChangeScroll, 
     }, [user])
 
     return (
-        <div style={{ height: window.innerHeight - 40 }}>
+        <section style={{ height: window.innerHeight - 40 }}>
             <ul id="boardUl" className="mobileList" onScroll={scrollEvent} style={{ scrollBehavior: "smooth", marginTop: "0", width: "100%", paddingBottom: "70px", paddingLeft: "10px", paddingRight: "10px", height: window.innerHeight - 40, overflow: "scroll", listStyleType: "none" }}>
                 {list.map((data, index) => {
                     return (
@@ -95,7 +94,7 @@ const Mobile = ({ list, pageChange, totalPage, dateCompare, handleChangeScroll, 
                 <Link id="writeLink" to="/post/false"></Link>
                 <img alt="writeButton" onClick={writeBtn} id="writeBtn" className="writeClass" src="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/%EA%B8%80%EC%93%B0%EA%B8%B0%EB%B2%84%ED%8A%BC.png" />
             </div>
-        </div>
+        </section>
     )
 }
 
@@ -109,6 +108,6 @@ const mapStateToProps = ({ board }) => ({
 });
 
 
-export default connect(
+export default React.memo(connect(
     mapStateToProps
-)(Mobile);
+)(Mobile));
