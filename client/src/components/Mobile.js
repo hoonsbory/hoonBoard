@@ -89,11 +89,11 @@ const Mobile = ({ list, pageChange, totalPage, dateCompare, handleChangeScroll, 
                 }
                 )}
             </ul>
-            <div id="bottomBtn">
+            <nav id="bottomBtn">
                 <img alt="goTop" onClick={() => document.getElementById("boardUl").firstChild.scrollIntoView()} id="topBtn" src="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/%EC%9C%84%EB%A1%9C%EA%B0%80%EA%B8%B0+%EB%B2%84%ED%8A%BC.png" />
                 <Link id="writeLink" to="/post/false"></Link>
                 <img alt="writeButton" onClick={writeBtn} id="writeBtn" className="writeClass" src="https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/%EA%B8%80%EC%93%B0%EA%B8%B0%EB%B2%84%ED%8A%BC.png" />
-            </div>
+            </nav>
         </section>
     )
 }
