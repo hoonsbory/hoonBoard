@@ -180,19 +180,20 @@ app.get('/view', function (req, res, next) {
         data = data.replace(/\FullStack Junior's Note/g, result.title);
         data = data.replace(/\풀스택 주니어의 웹개발노트입니다./g, result.description);
         data = data.replace(/\postDate/g, result.updatePost);
-        result2 = data.replace(/\hoondevnote.ml/g, "hoondevnote.ml/view?postId=" + req.query.postId);
-        fs.writeFile(dir + "/index"+req.query.postId + ".html", result2, (err) => {
+        result2 = data.replace(/\hoondevnote.ml/g, `hoondevnote.ml/view?postId=${req.query.postId}`);
+        fs.writeFile(dir + `/index${req.query.postId}.html`, result2, (err) => {
           console.log(err);
-          res.sendFile(path.join(__dirname, dir, "index" + req.query.postId + ".html"));
+          res.sendFile(path.join(__dirname, dir, `index${req.query.postId}.html`));
         })
       });
       //사이트맵 생성
-      fs.readFile(dir + "/sitemap.xml", 'utf8', (err, data) => {
+      fs.readFile(`${dir}/sitemap.xml`, 'utf8', (err, data) => {
         if (err) return console.log(err);
-        if (data.indexOf("postId=" + req.query.postId) === -1) {
+        if (data.indexOf(`postId=${req.query.postId}`) === -1) {
           data = data.replace(/\/urlset/g, "url")
-          data += "\n<loc>https://hoondevnote.ml/view?postId=" + req.query.postId + "</loc>\n</url>\n</urlset>"
-          fs.writeFile(dir + "/sitemap.xml", data, (err) => {
+          data += `\n<loc>https://hoondevnote.ml/view?postId=${req.query.postId}</loc>`
+          data += `\n<lastmod>${result.updatePost}</lastmod>\n</url>\n</urlset>`
+          fs.writeFile(`${dir}/sitemap.xml`, data, (err) => {
             console.log(err);
           })
         }
