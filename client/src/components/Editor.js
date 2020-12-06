@@ -43,19 +43,30 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
       displaySize: true
     },
     toolbar: [
-      [{ 'header': [1, 2, 3, 4, 5, false] }, { 'font': [] }],
-      ['bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block'],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
-      ['link', 'image', { 'color': [] }, { 'background': [] }],
+      // [{ 'header': [1, 2, 3, 4, 5, false] }, { 'font': [] }],
+      // ['bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block'],
+      // [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
+      // ['link', 'image', { 'color': [] }, { 'background': [] }],
+      // ['clean']
+      ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+      ['blockquote', 'code-block'],
+
+      [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
+      [{ 'indent': '-1' }, { 'indent': '+1' }],          // outdent/indent
+      [{ 'direction': 'rtl' }],                         // text direction
+
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+
+      [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+      [{ 'font': [] }],
+      [{ 'align': [] }],
+
       ['clean']
     ],
   }
-  const formats = [
-    'header', 'font',
-    'bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block',
-    'list', 'bullet', 'indent',
-    'link', 'image', 'color', 'background'
-  ]
+  
   const style = {
     height: window.innerHeight - 240 + "px"
   }
@@ -318,8 +329,8 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
     //quill내에서 highlight가 적용이 안돼서, 직접 적용시켰다. 엔터키를 누를때마다 적용이되고, 아래처럼 아이콘을 클릭해도 적용이 된다.
     document.getElementsByClassName("ql-code-block")[0].onclick = () => {
       document.querySelectorAll('pre').forEach((block) => {
-        if(block.className.indexOf("hljs") === -1)
-        hljs.highlightBlock(block);
+        if (block.className.indexOf("hljs") === -1)
+          hljs.highlightBlock(block);
       });
     }
     if (params === "update") {
@@ -483,7 +494,6 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
       <ReactQuill
         // onChange={handleChange}
         modules={modules}
-        formats={formats}
         style={style}
         onKeyDown={onKeyDown}
       />
