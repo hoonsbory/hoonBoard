@@ -43,19 +43,18 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
       displaySize: true
     },
     toolbar: [
-      // [{ 'header': [1, 2, 3, 4, 5, false] }, { 'font': [] }],
-      // ['bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block'],
-      // [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
-      // ['link', 'image', { 'color': [] }, { 'background': [] }],
-      // ['clean']
+      //      [{ 'header': [1, 2, 3, 4, 5, false] }, { 'font': [] }],
+      //      ['bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block'],
+      //      [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
+      //      ['link', 'image', { 'color': [] }, { 'background': [] }],
+      //      ['clean']
       ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-      ['blockquote', 'code-block'],
+      ['blockquote', 'code-block', 'image', 'link'],
 
-      [{ 'header': 1 }, { 'header': 2 }],               // custom button values
       [{ 'list': 'ordered' }, { 'list': 'bullet' }],
       [{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
       [{ 'indent': '-1' }, { 'indent': '+1' }],          // outdent/indent
-      [{ 'direction': 'rtl' }],                         // text direction
+      //  	[{ 'direction': 'rtl' }],                         // text direction
 
       [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
 
@@ -66,9 +65,8 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
       ['clean']
     ],
   }
-  
   const style = {
-    height: window.innerHeight - 240 + "px"
+    height: `${window.innerHeight - 240}px`
   }
 
   const onKeyDown = debounce(useCallback((e) => {
@@ -174,7 +172,7 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
             renderTrigger()
             document.getElementById("loadingBg").style.display = "none"
             alert('글이 등록되었습니다!');
-            window.location.href = "/view?postId=" + res.data
+            window.location.href = "/view/" + res.data
             // history.push("/view?postId=" + res.data)
           })
           break;
@@ -251,7 +249,7 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
         renderTrigger()
         document.getElementById("loadingBg").style.display = "none"
         alert('글이 수정되었습니다!');
-        window.location.href = "/view?postId=" + res.data
+        window.location.href = "/view/" + res.data
         // history.push("/view?postId=" + res.data)
       })
     }
@@ -482,22 +480,21 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
     outline: 0
   }
   const sendBtn = {
-    position: "relative",
-    bottom: "-" + (window.innerWidth > 735 ? 52 : (window.innerWidth > 421 ? 76 : (window.innerWidth > 314 ? 100 : 124))) + "px",
-    left: "50%",
-    transform: "translateX(-50%)"
+    width: '58px'
   }
   return (
     <div>
       <input type="file" hidden id="imgInput" accept="image/*" onChange={uploadImg.bind(this)} multiple></input>
-      <input type="text" id="postTitle" placeholder="제목" maxLength="50" style={inputStyle} autoFocus />
+      <div style={{ display: "flex" }}>
+        <input type="text" id="postTitle" placeholder="제목" maxLength="50" style={inputStyle} autoFocus />
+        <Button id="sendBtn" color="primary" style={sendBtn} onClick={sendPost}>완료</Button>
+      </div>
       <ReactQuill
         // onChange={handleChange}
         modules={modules}
         style={style}
         onKeyDown={onKeyDown}
       />
-      <Button id="sendBtn" color="primary" style={sendBtn} onClick={sendPost}>완료</Button>
       <Loading></Loading>
     </div>
   )
