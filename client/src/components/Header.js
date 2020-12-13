@@ -10,7 +10,7 @@ import axios from '../Axios'
 const Header = ({ user, pageChange, ua, handleChangeUser, handleChange,  handleChangeInput, search }) => {
     const [open, setOpen] = useState(true)
     const [open2, setOpen2] = useState(true)
-    const axiosfunc = axios(user)
+    const axiosfunc = axios()
     //useCallback을 처음써봤는데, 첫 렌더링떄만 생성되게하면, 함수안의 모든 값들이 렌더링시에 존재했던 값으로 읽혀서 쓸 수 가 없다. 그래서 효율적이게 쓸려면 필요한 값들이 업데이트 됐을때 
     //함수를 재생성하게하면된다
     //아래처럼 해주면 open의 값이 변경될떄만 함수가 재생성되므로 불필요한 함수의 재생성을 막을 수 있다. usecallback을 쓰지 않으면 다른 state값이 변경될때마다 재생성되므로 매우 비효율적.

@@ -36,7 +36,7 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
   // const handleChange = (editorState) => {
   //   setText(editorState)
   // };
-  const axiosfunc = axios(user, handleUser)
+  const axiosfunc = axios(handleUser,renderTrigger)
 
   const modules = {
     ImageResize: {
@@ -164,6 +164,7 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
           }
         } else {
           await axiosfunc.axiosPost('/api/editorTest', {
+            user : user,
             content: editor.innerHTML,
             thumbnail: editor.getElementsByTagName("img")[0] ? editor.getElementsByTagName("img")[0].src.split("https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/")[1] : "",
             title: input.value.trim(),
@@ -240,6 +241,7 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
 
 
       await axiosfunc.axiosPost('/api/updatePost', {
+        user : user,
         content: editor.innerHTML,
         thumbnail: editor.getElementsByTagName("img")[0] ? editor.getElementsByTagName("img")[0].src.split("https://jaehoon-bucket.s3.ap-northeast-2.amazonaws.com/")[1] : "",
         title: input.value.trim(),
@@ -286,7 +288,7 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
     // }
 
 
-  }, [params, viewPost]), 200)
+  }, [params, viewPost,user]), 200)
 
   //base64를 이미지파일로 변환
   const dataURLtoFile = (dataurl, fileName) => {

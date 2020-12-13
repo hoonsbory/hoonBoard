@@ -16,7 +16,7 @@ import axios from '../Axios'
 
 const BoardContainer = ({ boardActions, search, input, renderTrigger }) => {
     const [reload, setReload] = useState(false);
-    const axiosfunc = axios("")
+    const axiosfunc = axios()
 
 
 

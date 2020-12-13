@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 
-const Axios = (user,handleUser,renderTrigger) => {
+const Axios = (handleUser,renderTrigger) => {
 
     return {
         async axiosPost(url, data, callback, error) {
@@ -13,9 +13,10 @@ const Axios = (user,handleUser,renderTrigger) => {
                         error()
                     }
                     else {
-                        if(err.response.data === "retry" && user){
+                        console.log(err);
+                        if(err.response.data === "retry" && data.user){
                             if(window.confirm("로그인 기한이 만료되었습니다. 재로그인 하시겠습니까?")){
-                                axios.post('/api/reLogin', {data : {user : user}})
+                                axios.post('/api/reLogin', {data : {user : data.user}})
                                 .then(res=>{
                                     renderTrigger()
                                     if(document.getElementById("loadingBg")) document.getElementById("loadingBg").style.display = "none"
@@ -26,6 +27,7 @@ const Axios = (user,handleUser,renderTrigger) => {
                                 handleUser()
                             }
                         }else{
+                            if(document.getElementById("loadingBg")) document.getElementById("loadingBg").style.display = "none"
                             alert("잘못된 요청입니다. 다시 로그인해주세요.")
                         }
                     }
