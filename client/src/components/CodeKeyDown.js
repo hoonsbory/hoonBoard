@@ -2,13 +2,52 @@ import GetOffset from './GetOffset'
 import GetCursorNode from './GetCursorNode'
 import hljs from 'highlight.js/lib/core'
 
-export default async function CodeKeyDown(){
+const CodeKeyDown = async(e,preText) =>{
     //코드에 하이라이트가 적용되면 커서가 맨앞으로 이동한다.
     //이를 처리하기 위해 커서 핸들링이 필요하다.
     //단순하게 현재 위치를 기억한 후 하이라이트 적용 후 커서를 옮겨주면 된다.
     //그러나 언어에 따라서 태그의 구조가 다르기 때문에, 완전탐색을 통해 최하위의 모든 Text노드를 탐색해서 length를 통해 커서 위치를 구해야한다.
     try {
         var node = window.getSelection().getRangeAt(0)
+        var startOffset = node.startOffset
+        var nodeText = node.startContainer.textContent
+        var deleteBraket = '';
+        console.log(e.keyCode)
+        //방향키,네비게이션키랑 쉬프트, 컨트롤은 리턴. 키보드로 드래그할 수 있게
+        if(e.keyCode>=37&&e.keyCode<=40 || e.keyCode === 16 || e.keyCode === 17 || (e.keyCode>=33&&e.keyCode<=36)) return
+
+        //괄호 자동 닫힘
+        if(nodeText[startOffset-1]==="(" && e.keyCode ===57)
+         node.startContainer.textContent = nodeText.substr(0,startOffset) + ")" + nodeText.substr(startOffset)
+        if(nodeText[startOffset-1]==="{" && e.keyCode ===219)
+        node.startContainer.textContent = nodeText.substr(0,startOffset) + "}" + nodeText.substr(startOffset)
+        if(nodeText[startOffset-1]==="[" && e.keyCode ===219)
+        node.startContainer.textContent = nodeText.substr(0,startOffset) + "]" + nodeText.substr(startOffset)
+        if(nodeText[startOffset-1]==="`" && e.keyCode ===192)
+        node.startContainer.textContent = nodeText.substr(0,startOffset) + "`" + nodeText.substr(startOffset)
+        if(nodeText[startOffset-1]==="'" && e.keyCode ===222)
+        node.startContainer.textContent = nodeText.substr(0,startOffset) + "'" + nodeText.substr(startOffset)
+        if(nodeText[startOffset-1]===`"` && e.keyCode ===222)
+        node.startContainer.textContent = nodeText.substr(0,startOffset) + `"` + nodeText.substr(startOffset)
+        var aa = node.startContainer.textContent
+        //괄호 한쌍 같이 삭제
+        for(var i=0; i<preText.current.length; i++){
+            if(preText.current[i]!==nodeText[i]){
+                deleteBraket = preText.current[i]
+                break;
+            } 
+        }      
+        if(e.keyCode===8 && 
+            ((deleteBraket==="`" && nodeText[startOffset]==="`") ||
+             (deleteBraket==="'" && nodeText[startOffset]==="'") || 
+             (deleteBraket===`"` && nodeText[startOffset]===`"`) || 
+             (deleteBraket==="(" && nodeText[startOffset]===")") || 
+             (deleteBraket==="[" && nodeText[startOffset]==="]") || 
+             (deleteBraket==="{" && nodeText[startOffset]==="}"))){
+            node.startContainer.textContent = nodeText.substr(0,startOffset) + nodeText.substr(startOffset+1)
+        }
+
+
           // var offset = node.startContainer.length - node.startOffset
           var syntax = node.startContainer.parentElement
           while(true){ //편집중인 코드블락의 root 노드를 찾는다.
@@ -16,7 +55,7 @@ export default async function CodeKeyDown(){
             else syntax = syntax.parentElement
           }
           //완전탐색을 통해 모든 text 노드까지 탐색한 후 text의 length를 더해서 커서 위치를 찾아낸다.
-          var offset =  GetOffset(syntax.firstChild, node.startContainer,node.startOffset)
+          var offset =  GetOffset(syntax.firstChild, node.startContainer,startOffset)
           
           var range, selection;
           
@@ -38,8 +77,11 @@ export default async function CodeKeyDown(){
           selection = window.getSelection();//셀렉션 객체 가져옴
           selection.removeAllRanges();//만들어져있던 모든 range제거 후
           selection.addRange(range);//위에서 만든 range를 window에 추가하므로 커서 변경.
+          preText.current = aa
+
       } catch (error) {
         document.getElementsByClassName("ql-editor")[0].focus()
         return
       }
 }
+export default CodeKeyDown

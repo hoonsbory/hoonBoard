@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import '../css/quill.snow.css';
 import hljs from 'highlight.js/lib/core'
 import 'highlight.js/styles/atom-one-dark.css'
@@ -65,13 +65,13 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
   const style = {
     height: `${window.innerHeight-200}px`
   }
+  const preText = useRef('')
+  const onKeyDown = (e) => {
+     CodeKeyDown(e,preText)
+  }
 
-  const onKeyDown = deb.debounce(async (e) => {
-     CodeKeyDown()
-  },  1000)
 
 
-  
   //quill에서 img가 base64로 인코딩되어 태그가 삽입되는데, 이 긴 문자열을 전부 db에 저장할 수 는 없다.
   //이미지를 올릴때 이미지태그를 찾아 이미지를 s3에 업로드하여 저장한 후 s3링크를 삽입하는 로직을 짜야겠따.
   var file2 = []
@@ -422,7 +422,7 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
         modules={modules}
         // formats={formats}
         style={style}
-        onKeyDown={onKeyDown}
+        onKeyUp={onKeyDown}
       />
       <Loading></Loading>
     </div>
