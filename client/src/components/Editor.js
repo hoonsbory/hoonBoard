@@ -1,140 +1,86 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import '../css/quill.snow.css';
 import hljs from 'highlight.js/lib/core'
-import 'highlight.js/styles/railscasts.css'
+import 'highlight.js/styles/atom-one-dark.css'
 import ReactQuill, { Quill } from 'react-quill';
 import { Button } from 'reactstrap'
 import ImageResize from 'quill-image-resize-module-fix-for-mobile';
-import { debounce } from 'lodash'
+// import { debounce } from 'lodash'
 import Loading from './Loading';
-import javascript from 'highlight.js/lib/languages/javascript';
+import typescript from 'highlight.js/lib/languages/typescript';
 import css from 'highlight.js/lib/languages/css';
 import html from 'highlight.js/lib/languages/xml';
 import java from 'highlight.js/lib/languages/java';
 import json from 'highlight.js/lib/languages/json';
 import bash from 'highlight.js/lib/languages/bash';
+import python from 'highlight.js/lib/languages/python';
+import c from 'highlight.js/lib/languages/c';
 import sql from 'highlight.js/lib/languages/sql';
 import axios from '../Axios'
+import { Debounce } from './Debounce'
+import { GetIndex } from './GetIndex'
+import DataURLtoFile from './DataURLtoFile'
+import CodeKeyDown from './CodeKeyDown';
 
+
+const deb = Debounce()
 Quill.register('modules/ImageResize', ImageResize);
 
 
-hljs.registerLanguage('javascript', javascript);
+hljs.registerLanguage('typescript', typescript);
 hljs.registerLanguage('css', css);
 hljs.registerLanguage('html', html);
 hljs.registerLanguage('java', java);
 hljs.registerLanguage('json', json);
 hljs.registerLanguage('bash', bash);
 hljs.registerLanguage('sql', sql);
+hljs.registerLanguage('c', c);
+hljs.registerLanguage('python', python);
 
 
 const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
-  //s3에 업로드된 이미지 배열
-  // const [finalFiles, setFinalFiles] = useState([1])
-
-  //굳이 에디터의 값을 state로 핸들링할 필요가 없어서 지웠다. 그냥 innerHtml로 대체했다.
-  // const handleChange = (editorState) => {
-  //   setText(editorState)
-  // };
   const axiosfunc = axios(handleUser,renderTrigger)
-
   const modules = {
     ImageResize: {
       displaySize: true
     },
     toolbar: [
-      //      [{ 'header': [1, 2, 3, 4, 5, false] }, { 'font': [] }],
-      //      ['bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block'],
-      //      [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
-      //      ['link', 'image', { 'color': [] }, { 'background': [] }],
-      //      ['clean']
       ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-      ['blockquote', 'code-block', 'image', 'link'],
-
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      [{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
-      [{ 'indent': '-1' }, { 'indent': '+1' }],          // outdent/indent
-      //  	[{ 'direction': 'rtl' }],                         // text direction
-
+      ['blockquote','link', 'code-block','image',],
+    
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+      [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+    
       [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-
+    
       [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
       [{ 'font': [] }],
       [{ 'align': [] }],
-
-      ['clean']
+    
+      ['clean']        
     ],
   }
+  
   const style = {
-    height: `${window.innerHeight - 240}px`
+    height: `${window.innerHeight-200}px`
   }
 
-  const onKeyDown = debounce(useCallback((e) => {
-    try {
-      var node = window.getSelection().getRangeAt(0)
-      if (node.startContainer.parentElement.className.indexOf("ql-syntax") > -1) {
-        var offset = node.startContainer.length - node.startOffset
-        //코드블락이 씌워지면 커서가 0번째 문자로 간다.
-        //그래서 원래 있던 커서 위치를 기억해놨다가 다시 설정해줘야하는데.
-        //커서 위치를 기억해놔도 span태그 등으로 블락이 씌워지면 인덱스가 다 바뀌기 떄문에
-        //제 위치를 찾을 수가 없다.
-        //진짜 삽질에 삽질을 거듭해서 조건문을 겨우 간추렸다... if문만 3개에서 4개정도 썼는데... 몇시간째 붙잡다보니까 머리가 굳었나보다. 하나면 될것을..
-        //커서위치조정은 collapse로 선택된 노드의 양끝으로 이동가능한 것 같다. 아무리 구글링해도 안나옴 ㅜ
-        //그래서 selectNodeContents를 통해 원하는 위치까지만 선택해서 끝으로 커서를 이동시켜줬다.
-        var syntax = node.startContainer.parentElement
-        var beforeNode = node.startContainer
-        var beforeNodeCount = node.startContainer.parentElement.childNodes.length
-        var beforeNodeIndex = getIndex(beforeNode)
-        var range, selection;
+  const onKeyDown = deb.debounce(async (e) => {
+     CodeKeyDown()
+  },  1000)
 
-        //코드블락이 된 상태에서 또 코드블락이 씌워져서 겉으로는 멀쩡하지만 불필요한 태그가 계속 중첩되어 덮어씌워진다.
-        //그래서 코드블락 직전에, 텍스트만 빼내서 innerHTML로 넣어준다. innerText로는 enter가 감지안됨.
-        var syntaxText = syntax.innerText
-        syntax.innerHTML = syntaxText.replace(/</g, "&lt;")
-        hljs.highlightBlock(syntax);
-        range = document.createRange()
-        range.selectNodeContents(node.startContainer)
 
-        //커서위치의 노드가 마지막노드면 그냥 에디터의 마지막 노드에서 커서 조정.
-        // if (nextSibling) {
-        var afterNodeCount = node.startContainer.childNodes.length;
-        //코드블락이 새로 생긴 경우, 그 전의 노드 수를 비교해서 처리했다.
-        if (afterNodeCount !== beforeNodeCount) {
-          //계산을 통해 늘어난 자식수를 구해서 커서가 위치했던 노드인덱스와 더해주면, 코드블락이 생성된 후의 위치를 잡아낼 수 있다.
-          var insertBeforeNode = (afterNodeCount - beforeNodeCount) + (beforeNodeIndex)
-          range.setEnd(node.startContainer.childNodes[insertBeforeNode], node.startContainer.childNodes[insertBeforeNode].length - offset)
-          //코드블락이 적용되지 않은 경우엔 그대로 같은 인덱스를 통해서 커서를 잡아준다.
-        } else {
-          range.setEnd(node.startContainer.childNodes[beforeNodeIndex], node.startContainer.childNodes[beforeNodeIndex].length - offset)
-        }
-        // }
-        //  else {
-        //   range.setEnd(node.startContainer.lastChild, node.startContainer.lastChild.length - offset)
-        // }
-        range.collapse(false);//true는 텍스트의 시작점에 커서가 위치, false는 반대
-        selection = window.getSelection();//셀렉션 객체 가져옴
-        selection.removeAllRanges();//만들어져있던 모든 range제거 후
-        selection.addRange(range);//위에서 만든 range를 window에 추가하므로 커서 변경.
-
-      }
-    } catch (error) {
-      document.getElementsByClassName("ql-editor")[0].focus()
-      return
-    }
-  }, []), 1000)
+  
   //quill에서 img가 base64로 인코딩되어 태그가 삽입되는데, 이 긴 문자열을 전부 db에 저장할 수 는 없다.
   //이미지를 올릴때 이미지태그를 찾아 이미지를 s3에 업로드하여 저장한 후 s3링크를 삽입하는 로직을 짜야겠따.
-
-
-
-
   var file2 = []
   var files = [];
   var editor;
   var input;
   // const history = useHistory(); //react router 5버전부터 사용가능하다고 한다. 
   //history.push("/view/"+res.data) 이런 식으로 사용가능. 원래는 withrouter나 browserHistory로 모듈을 감싸서 사용했는데 이게 좀 더 깔끔한거 같다.
-  const sendPost = debounce(useCallback(async () => {
+  const sendPost = deb.debounce(useCallback(async () => {
     editor = document.getElementsByClassName("ql-editor")[0]
     input = document.getElementById("postTitle")
     if (input.value.trim().length === 0) {
@@ -147,6 +93,7 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
     }
 
     document.getElementById("loadingBg").style.display = "block"
+    sessionStorage.getItem("pageNum", "1")
     //반복문을 통해 base64 이미지를 파일로 변환후 s3에 업로드한다. 그리고 리턴받은 url을 src에 넣어준다
     if (params !== "update") {
       for (var i = 0; i > -1; i++) {
@@ -154,7 +101,7 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
           //내가 만든 에디터의 버튼을 통해 업로드하면 파일이름을 받아서 alt값으로 넣어주는데, 그림을 복사해서 에디터에 붙여넣기를 해버리면, 
           //alt값이 없는 경우도 있고, 아니면 이미 호스팅되고 있는 이미지를 가져와버리면 에러가 나기 때문에 처리를 해줘야 함.
           if (editor.getElementsByTagName("img")[i].src.indexOf("http") === -1) {
-            var file = dataURLtoFile(editor.getElementsByTagName("img")[i].src, editor.getElementsByTagName("img")[i].alt || "unknown")
+            var file = DataURLtoFile(editor.getElementsByTagName("img")[i].src, editor.getElementsByTagName("img")[i].alt || "unknown")
             const formData = new FormData();
             formData.append('file', file);
             formData.append('name', file.name);
@@ -221,7 +168,7 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
             }
           }
           if (!check) {
-            var fileInfo = dataURLtoFile(editor.getElementsByTagName("img")[i4].src, editor.getElementsByTagName("img")[i4].alt)
+            var fileInfo = DataURLtoFile(editor.getElementsByTagName("img")[i4].src, editor.getElementsByTagName("img")[i4].alt)
             const formData = new FormData();
             formData.append('file', fileInfo);
             formData.append('name', fileInfo.name);
@@ -290,29 +237,8 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
 
   }, [params, viewPost,user]), 200)
 
-  //base64를 이미지파일로 변환
-  const dataURLtoFile = (dataurl, fileName) => {
-
-    var arr = dataurl.split(','),
-      mime = arr[0].match(/:(.*?);/)[1],
-      bstr = atob(arr[1]),
-      n = bstr.length,
-      u8arr = new Uint8Array(n);
-
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-
-    return new File([u8arr], fileName, { type: mime });
-  }
-
-  const getIndex = (elem) => {
-    for (var i = 0; i < elem.parentNode.childNodes.length; i++) {
-      if (elem.parentNode.childNodes[i] === elem) {
-        return i;
-      }
-    }
-  }
+ 
+  
 
   useEffect(() => {
     //이미지 업로드 부분만 커스텀하기위해서 기존 노드를 삭제하고 복제한 노드에 이벤트를 주었다.
@@ -408,7 +334,7 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
                   //여러개를 업로드할 때 처음에만 양옆 텍스트들은 이미지와 함께 insert해주고 그 다음부터는 삽입된 이미지 다음 순서에 이미지만 삽입해준다.
                   if (i === 0) {
                     //현재 커서가 속한 태그가 몇번째 자식인지 알아냄
-                    cursorPosition = getIndex(cursor.startContainer)
+                    cursorPosition = GetIndex(cursor.startContainer)
                     //인서트하기전 원래 있던 노드 삭제.
                     cursor.startContainer.remove()
                     //역순으로 insertBefore를 해주어서 순서를 맞춰준다. 예)사진은 (이미지 삽입할 곳. 현재 커서위치) 이렇다.    결과 -> 사진은 <img> 이렇다.
@@ -482,18 +408,19 @@ const Editor = ({ user, params, renderTrigger, viewPost, handleUser }) => {
     outline: 0
   }
   const sendBtn = {
-    width: '58px'
+    width : "58px"
   }
   return (
     <div>
       <input type="file" hidden id="imgInput" accept="image/*" onChange={uploadImg.bind(this)} multiple></input>
-      <div style={{ display: "flex" }}>
-        <input type="text" id="postTitle" placeholder="제목" maxLength="50" style={inputStyle} autoFocus />
-        <Button id="sendBtn" color="primary" style={sendBtn} onClick={sendPost}>완료</Button>
+      <div style={{display : "flex"}}>
+      <input type="text" id="postTitle" placeholder="제목" maxLength="50" style={inputStyle} autoFocus />
+      <Button id="sendBtn" color="primary" style={sendBtn} onClick={sendPost}>완료</Button>
       </div>
       <ReactQuill
         // onChange={handleChange}
         modules={modules}
+        // formats={formats}
         style={style}
         onKeyDown={onKeyDown}
       />
